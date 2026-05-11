@@ -63,9 +63,10 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
               <label className="info-label">Hora Entrega</label>
               <input 
                 className="premium-input" 
-                type="time"
+                type="text"
                 value={editingPedido['Hora entrega'] || ''} 
                 onChange={e => handleChange('Hora entrega', e.target.value)} 
+                placeholder="Ej: 8:30 AM o 14:00"
               />
             </div>
           </div>
