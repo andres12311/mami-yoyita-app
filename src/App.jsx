@@ -182,6 +182,7 @@ function App() {
         deliveryStats={stats.deliveryStats} 
         productStats={stats.productStats} 
         globalStats={stats.globalStats}
+        monthlyStats={stats.monthlyStats}
       />
 
       <SummaryModal 

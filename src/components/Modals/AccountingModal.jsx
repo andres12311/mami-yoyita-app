@@ -1,13 +1,22 @@
 import React from 'react';
-import { X, TrendingUp, DollarSign, PieChart, ShoppingBag } from 'lucide-react';
+import { X, TrendingUp, DollarSign, PieChart, ShoppingBag, Calendar } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
-const AccountingModal = ({ isOpen, onClose, selectedDate, deliveryStats, productStats, globalStats }) => {
+const formatMonthName = (monthStr) => {
+  const [year, month] = monthStr.split('-');
+  const months = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  return `${months[parseInt(month) - 1]} ${year}`;
+};
+
+const AccountingModal = ({ isOpen, onClose, selectedDate, deliveryStats, productStats, globalStats, monthlyStats }) => {
   if (!isOpen) return null;
 
   return (
     <div className="modal-blur no-print">
-      <div className="modal-lux" style={{maxWidth: '800px'}}>
+      <div className="modal-lux" style={{maxWidth: '850px'}}>
         <div className="modal-header" style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
             <TrendingUp size={32} color="#8B5CF6" />
@@ -36,13 +45,42 @@ const AccountingModal = ({ isOpen, onClose, selectedDate, deliveryStats, product
             <p style={{margin: '5px 0 0', fontSize: '11px', color: '#B91C1C', opacity: 0.7}}>Todos los meses</p>
           </div>
 
-          <div style={{background: '#EEF2FF', padding: '25px', borderRadius: '30px', border: '1px solid #E0E7FF', gridColumn: 'span 1'}}>
+          <div style={{background: '#EEF2FF', padding: '25px', borderRadius: '30px', border: '1px solid #E0E7FF'}}>
             <div style={{display: 'flex', alignItems: 'center', gap: '10px', color: '#4338CA', marginBottom: '10px'}}>
               <TrendingUp size={20} />
               <span style={{fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px'}}>Ganancia Neta</span>
             </div>
             <p style={{margin: 0, fontSize: '24px', fontWeight: '900', color: '#3730A3'}}>{formatCurrency(globalStats.netProfit)}</p>
             <p style={{margin: '5px 0 0', fontSize: '11px', color: '#4338CA', opacity: 0.7}}>Fuera de gastos</p>
+          </div>
+        </div>
+
+        {/* RESUMEN POR MESES */}
+        <div style={{marginBottom: '35px'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#475569'}}>
+            <Calendar size={22} />
+            <h3 style={{margin: 0, fontSize: '18px', fontWeight: '800'}}>Historial por Meses</h3>
+          </div>
+          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px'}}>
+            {monthlyStats.map((item) => (
+              <div key={item.month} style={{background: 'white', border: '1.5px solid #F1F5F9', padding: '20px', borderRadius: '25px', display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                <div style={{fontSize: '14px', fontWeight: '800', color: '#6366F1', borderBottom: '1px solid #F1F5F9', paddingBottom: '10px', marginBottom: '5px'}}>
+                  {formatMonthName(item.month)}
+                </div>
+                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '13px'}}>
+                  <span style={{color: '#64748B'}}>Ventas:</span>
+                  <span style={{fontWeight: '700', color: '#166534'}}>{formatCurrency(item.sales)}</span>
+                </div>
+                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '13px'}}>
+                  <span style={{color: '#64748B'}}>Gastos:</span>
+                  <span style={{fontWeight: '700', color: '#991B1B'}}>{formatCurrency(item.expenses)}</span>
+                </div>
+                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginTop: '5px', paddingTop: '5px', borderTop: '1px dashed #F1F5F9'}}>
+                  <span style={{fontWeight: '800', color: '#475569'}}>Utilidad:</span>
+                  <span style={{fontWeight: '900', color: '#4338CA'}}>{formatCurrency(item.profit)}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

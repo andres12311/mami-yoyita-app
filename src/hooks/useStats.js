@@ -83,6 +83,37 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     };
   }, [pedidos, gastosDetalle]);
 
+  // Monthly Stats (Breakdown by Month)
+  const monthlyStats = useMemo(() => {
+    const months = {};
+    
+    // Process Sales
+    pedidos.forEach(p => {
+      const monthKey = (p.fechaEntrega || '').substring(0, 7); // YYYY-MM
+      if (monthKey) {
+        if (!months[monthKey]) months[monthKey] = { sales: 0, expenses: 0 };
+        months[monthKey].sales += (parseFloat(p.precioDesayuno) || 0);
+      }
+    });
+
+    // Process Expenses
+    Object.entries(gastosDetalle).forEach(([date, list]) => {
+      const monthKey = date.substring(0, 7);
+      if (monthKey) {
+        if (!months[monthKey]) months[monthKey] = { sales: 0, expenses: 0 };
+        months[monthKey].expenses += list.reduce((sum, g) => sum + (parseFloat(g.monto) || 0), 0);
+      }
+    });
+
+    return Object.entries(months)
+      .sort((a, b) => b[0].localeCompare(a[0])) // Most recent month first
+      .map(([month, data]) => ({
+        month,
+        ...data,
+        profit: data.sales - data.expenses
+      }));
+  }, [pedidos, gastosDetalle]);
+
   return { 
     deliveryStats, 
     productStats, 
@@ -91,6 +122,7 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     totalVentasDia, 
     totalGastosDia, 
     utilidadDia,
-    globalStats
+    globalStats,
+    monthlyStats
   };
 };
