@@ -11,9 +11,13 @@ const Login = ({ onLogin, loginError }) => {
     if (!username || !password) return;
     setIsSubmitting(true);
     
-    // Convertimos el usuario en un correo válido para Firebase por detrás
-    const fakeEmail = `${username.trim().toLowerCase()}@mamiyoyita.com`;
-    await onLogin(fakeEmail, password);
+    // Si el usuario ya puso un correo (tiene @), lo usamos tal cual
+    // Si no, le agregamos el dominio por defecto
+    const loginEmail = username.includes('@') 
+      ? username.trim() 
+      : `${username.trim().toLowerCase()}@mamiyoyita.com`;
+
+    await onLogin(loginEmail, password);
     setIsSubmitting(false);
   };
 
@@ -28,13 +32,13 @@ const Login = ({ onLogin, loginError }) => {
 
          <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
            <div className="info-group" style={{textAlign: 'left'}}>
-             <label className="info-label"><User size={12} /> Usuario</label>
+             <label className="info-label"><User size={12} /> Usuario o Correo</label>
              <input 
                className="premium-input" 
                type="text" 
                value={username} 
                onChange={e => setUsername(e.target.value)} 
-               placeholder="ej: admin" 
+               placeholder="ej: admin o tu@gmail.com" 
                required
              />
            </div>
@@ -52,8 +56,8 @@ const Login = ({ onLogin, loginError }) => {
            </div>
 
            {loginError && (
-             <div style={{color: '#EF4444', fontSize: '14px', fontWeight: '600', background: '#FEE2E2', padding: '10px', borderRadius: '10px'}}>
-               ❌ Usuario o clave incorrectos.
+             <div style={{color: '#EF4444', fontSize: '13px', fontWeight: '600', background: '#FEE2E2', padding: '10px', borderRadius: '10px', lineHeight: '1.4'}}>
+               ❌ Error: {loginError.includes('auth/') ? 'Usuario o clave incorrectos' : loginError}
              </div>
            )}
 
