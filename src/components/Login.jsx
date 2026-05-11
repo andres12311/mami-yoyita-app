@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { Heart, LogIn, Lock, Loader2 } from 'lucide-react';
+import { Heart, LogIn, Lock, User, Loader2 } from 'lucide-react';
 
 const Login = ({ onLogin, loginError }) => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!password) return;
+    if (!username || !password) return;
     setIsSubmitting(true);
-    // Usamos un correo fijo por detrás para simplificar el acceso
-    await onLogin('admin@mamiyoyita.com', password);
+    
+    // Convertimos el usuario en un correo válido para Firebase por detrás
+    const fakeEmail = `${username.trim().toLowerCase()}@mamiyoyita.com`;
+    await onLogin(fakeEmail, password);
     setIsSubmitting(false);
   };
 
@@ -20,12 +23,24 @@ const Login = ({ onLogin, loginError }) => {
          <div style={{marginBottom: '30px'}}>
            <Heart size={60} fill="#FFB7C5" color="#FF8DA1" style={{margin: '0 auto'}} />
            <h1 style={{fontFamily: 'Satisfy', fontSize: '40px', color: '#FF8DA1'}}>Delicias de la Mami Yoyita</h1>
-           <p style={{fontFamily: 'Quicksand', color: '#717171'}}>Panel de Administración Seguro</p>
+           <p style={{fontFamily: 'Quicksand', color: '#717171'}}>Panel de Administración</p>
          </div>
 
          <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
            <div className="info-group" style={{textAlign: 'left'}}>
-             <label className="info-label"><Lock size={12} /> Contraseña de Acceso</label>
+             <label className="info-label"><User size={12} /> Usuario</label>
+             <input 
+               className="premium-input" 
+               type="text" 
+               value={username} 
+               onChange={e => setUsername(e.target.value)} 
+               placeholder="ej: admin" 
+               required
+             />
+           </div>
+
+           <div className="info-group" style={{textAlign: 'left'}}>
+             <label className="info-label"><Lock size={12} /> Contraseña</label>
              <input 
                className="premium-input" 
                type="password" 
@@ -33,14 +48,12 @@ const Login = ({ onLogin, loginError }) => {
                onChange={e => setPassword(e.target.value)} 
                placeholder="••••••••" 
                required
-               autoFocus
-               style={{textAlign: 'center', fontSize: '20px', letterSpacing: '5px'}}
              />
            </div>
 
            {loginError && (
              <div style={{color: '#EF4444', fontSize: '14px', fontWeight: '600', background: '#FEE2E2', padding: '10px', borderRadius: '10px'}}>
-               ❌ Clave incorrecta.
+               ❌ Usuario o clave incorrectos.
              </div>
            )}
 
