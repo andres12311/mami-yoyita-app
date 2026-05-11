@@ -3,12 +3,17 @@ import { X, TrendingUp, DollarSign, PieChart, ShoppingBag, Calendar, ArrowUpCirc
 import { formatCurrency } from '../../utils/formatters';
 
 const formatMonthName = (monthStr) => {
-  const [year, month] = monthStr.split('-');
-  const months = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
-  return `${months[parseInt(month) - 1]} ${year}`;
+  if (!monthStr || !monthStr.includes('-')) return 'Mes Desconocido';
+  try {
+    const [year, month] = monthStr.split('-');
+    const months = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return `${months[parseInt(month) - 1] || 'Mes'} ${year}`;
+  } catch (e) {
+    return 'Mes Inválido';
+  }
 };
 
 const AccountingModal = ({ isOpen, onClose, selectedDate, deliveryStats, productStats, globalStats, monthlyStats }) => {

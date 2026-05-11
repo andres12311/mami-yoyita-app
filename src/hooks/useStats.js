@@ -75,7 +75,10 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
   // Global Stats (All time)
   const globalStats = useMemo(() => {
     const totalSales = pedidos.reduce((sum, p) => sum + (parseFloat(p.precioDesayuno) || 0), 0);
-    const totalExpenses = Object.values(gastosDetalle).flat().reduce((sum, g) => sum + (parseFloat(g.monto) || 0), 0);
+    const totalExpenses = Object.entries(gastosDetalle).reduce((sum, [key, list]) => {
+      if (!Array.isArray(list)) return sum;
+      return sum + list.reduce((s, g) => s + (parseFloat(g.monto) || 0), 0);
+    }, 0);
     return {
       totalSales,
       totalExpenses,
@@ -89,8 +92,9 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     
     // Process Sales
     pedidos.forEach(p => {
-      const monthKey = (p.fechaEntrega || '').substring(0, 7); // YYYY-MM
-      if (monthKey) {
+      const date = p.fechaEntrega || '';
+      if (date && date.includes('-')) {
+        const monthKey = date.substring(0, 7); // YYYY-MM
         if (!months[monthKey]) months[monthKey] = { sales: 0, expenses: 0 };
         months[monthKey].sales += (parseFloat(p.precioDesayuno) || 0);
       }
@@ -98,8 +102,8 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
 
     // Process Expenses
     Object.entries(gastosDetalle).forEach(([date, list]) => {
-      const monthKey = date.substring(0, 7);
-      if (monthKey) {
+      if (Array.isArray(list) && date.includes('-')) {
+        const monthKey = date.substring(0, 7);
         if (!months[monthKey]) months[monthKey] = { sales: 0, expenses: 0 };
         months[monthKey].expenses += list.reduce((sum, g) => sum + (parseFloat(g.monto) || 0), 0);
       }
