@@ -40,6 +40,7 @@ const Login = ({ onLogin, loginError }) => {
                onChange={e => setUsername(e.target.value)} 
                placeholder="ej: admin o tu@gmail.com" 
                required
+               autoComplete="username"
              />
            </div>
 
@@ -52,6 +53,7 @@ const Login = ({ onLogin, loginError }) => {
                onChange={e => setPassword(e.target.value)} 
                placeholder="••••••••" 
                required
+               autoComplete="current-password"
              />
            </div>
 
