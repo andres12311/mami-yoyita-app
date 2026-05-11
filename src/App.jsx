@@ -181,6 +181,7 @@ function App() {
         selectedDate={selectedDate} 
         deliveryStats={stats.deliveryStats} 
         productStats={stats.productStats} 
+        globalStats={stats.globalStats}
       />
 
       <SummaryModal 

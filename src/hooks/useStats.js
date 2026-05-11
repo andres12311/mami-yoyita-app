@@ -72,6 +72,17 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
   const totalGastosDia = (gastosDetalle[selectedDate] || []).reduce((sum, g) => sum + (parseFloat(g.monto) || 0), 0);
   const utilidadDia = totalVentasDia - totalGastosDia;
 
+  // Global Stats (All time)
+  const globalStats = useMemo(() => {
+    const totalSales = pedidos.reduce((sum, p) => sum + (parseFloat(p.precioDesayuno) || 0), 0);
+    const totalExpenses = Object.values(gastosDetalle).flat().reduce((sum, g) => sum + (parseFloat(g.monto) || 0), 0);
+    return {
+      totalSales,
+      totalExpenses,
+      netProfit: totalSales - totalExpenses
+    };
+  }, [pedidos, gastosDetalle]);
+
   return { 
     deliveryStats, 
     productStats, 
@@ -79,6 +90,7 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     rawMaterialSummary, 
     totalVentasDia, 
     totalGastosDia, 
-    utilidadDia 
+    utilidadDia,
+    globalStats
   };
 };

@@ -31,7 +31,7 @@ const Header = ({
         
         <div className="controls-row">
            <button className="btn-main" style={{background: '#6366F1'}} onClick={() => setShowExpenses(true)}><BarChart3 size={20} /> Gastos</button>
-           <button className="btn-main" style={{background: '#8B5CF6'}} onClick={() => setShowAccounting(true)}><TrendingUp size={20} /> Liquidación</button>
+           <button className="btn-main" style={{background: '#8B5CF6'}} onClick={() => setShowAccounting(true)}><TrendingUp size={20} /> Contabilidad</button>
            <button className="btn-main" style={{background: '#717171'}} onClick={() => setShowSummary(true)}><ClipboardList size={20} /> Producción</button>
            <button className="btn-main" onClick={onNewPedido}><Plus size={20} /> Nuevo Pedido</button>
            <button className="btn-icon" onClick={() => window.print()}><Printer size={22} /></button>
