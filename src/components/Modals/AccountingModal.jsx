@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, TrendingUp, DollarSign, PieChart, ShoppingBag, Calendar } from 'lucide-react';
+import { X, TrendingUp, DollarSign, PieChart, ShoppingBag, Calendar, ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
 const formatMonthName = (monthStr) => {
@@ -16,80 +16,79 @@ const AccountingModal = ({ isOpen, onClose, selectedDate, deliveryStats, product
 
   return (
     <div className="modal-blur no-print">
-      <div className="modal-lux" style={{maxWidth: '850px'}}>
+      <div className="modal-lux" style={{maxWidth: '900px'}}>
         <div className="modal-header" style={{display: 'flex', justifyContent: 'space-between', marginBottom: '30px'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-            <TrendingUp size={32} color="#8B5CF6" />
-            <h2 style={{margin: 0}}>Contabilidad General</h2>
+            <Wallet size={32} color="#8B5CF6" />
+            <h2 style={{margin: 0}}>Contabilidad y Balances</h2>
           </div>
           <button className="btn-icon" onClick={onClose}><X /></button>
         </div>
-        
-        {/* RESUMEN GLOBAL */}
-        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '35px'}}>
-          <div style={{background: '#F0FDF4', padding: '25px', borderRadius: '30px', border: '1px solid #DCFCE7'}}>
-            <div style={{display: 'flex', alignItems: 'center', gap: '10px', color: '#15803D', marginBottom: '10px'}}>
-              <DollarSign size={20} />
-              <span style={{fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px'}}>Ingresos Totales</span>
-            </div>
-            <p style={{margin: 0, fontSize: '24px', fontWeight: '900', color: '#166534'}}>{formatCurrency(globalStats.totalSales)}</p>
-            <p style={{margin: '5px 0 0', fontSize: '11px', color: '#15803D', opacity: 0.7}}>Acumulado histórico</p>
-          </div>
 
-          <div style={{background: '#FEF2F2', padding: '25px', borderRadius: '30px', border: '1px solid #FEE2E2'}}>
-            <div style={{display: 'flex', alignItems: 'center', gap: '10px', color: '#B91C1C', marginBottom: '10px'}}>
-              <PieChart size={20} />
-              <span style={{fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px'}}>Gastos Totales</span>
-            </div>
-            <p style={{margin: 0, fontSize: '24px', fontWeight: '900', color: '#991B1B'}}>{formatCurrency(globalStats.totalExpenses)}</p>
-            <p style={{margin: '5px 0 0', fontSize: '11px', color: '#B91C1C', opacity: 0.7}}>Todos los meses</p>
+        {/* SECCIÓN DE MESES SEPARADOS (MÁS PROMINENTE) */}
+        <div style={{marginBottom: '40px'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#1E293B'}}>
+            <Calendar size={22} color="#6366F1" />
+            <h3 style={{margin: 0, fontSize: '20px', fontWeight: '900', letterSpacing: '-0.5px'}}>Balances Mensuales</h3>
           </div>
-
-          <div style={{background: '#EEF2FF', padding: '25px', borderRadius: '30px', border: '1px solid #E0E7FF'}}>
-            <div style={{display: 'flex', alignItems: 'center', gap: '10px', color: '#4338CA', marginBottom: '10px'}}>
-              <TrendingUp size={20} />
-              <span style={{fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px'}}>Ganancia Neta</span>
-            </div>
-            <p style={{margin: 0, fontSize: '24px', fontWeight: '900', color: '#3730A3'}}>{formatCurrency(globalStats.netProfit)}</p>
-            <p style={{margin: '5px 0 0', fontSize: '11px', color: '#4338CA', opacity: 0.7}}>Fuera de gastos</p>
-          </div>
-        </div>
-
-        {/* RESUMEN POR MESES */}
-        <div style={{marginBottom: '35px'}}>
-          <div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#475569'}}>
-            <Calendar size={22} />
-            <h3 style={{margin: 0, fontSize: '18px', fontWeight: '800'}}>Historial por Meses</h3>
-          </div>
-          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px'}}>
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
             {monthlyStats.map((item) => (
-              <div key={item.month} style={{background: 'white', border: '1.5px solid #F1F5F9', padding: '20px', borderRadius: '25px', display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                <div style={{fontSize: '14px', fontWeight: '800', color: '#6366F1', borderBottom: '1px solid #F1F5F9', paddingBottom: '10px', marginBottom: '5px'}}>
-                  {formatMonthName(item.month)}
+              <div key={item.month} style={{background: 'white', border: '1.5px solid #F1F5F9', borderRadius: '30px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)'}}>
+                <div style={{background: '#F8FAFC', padding: '15px 30px', borderBottom: '1.5px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                  <span style={{fontWeight: '900', color: '#6366F1', fontSize: '16px', textTransform: 'uppercase'}}>{formatMonthName(item.month)}</span>
+                  <div style={{background: '#EEF2FF', padding: '4px 15px', borderRadius: '50px', fontSize: '11px', fontWeight: '800', color: '#4338CA'}}>BALANCE DEL MES</div>
                 </div>
-                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '13px'}}>
-                  <span style={{color: '#64748B'}}>Ventas:</span>
-                  <span style={{fontWeight: '700', color: '#166534'}}>{formatCurrency(item.sales)}</span>
-                </div>
-                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '13px'}}>
-                  <span style={{color: '#64748B'}}>Gastos:</span>
-                  <span style={{fontWeight: '700', color: '#991B1B'}}>{formatCurrency(item.expenses)}</span>
-                </div>
-                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginTop: '5px', paddingTop: '5px', borderTop: '1px dashed #F1F5F9'}}>
-                  <span style={{fontWeight: '800', color: '#475569'}}>Utilidad:</span>
-                  <span style={{fontWeight: '900', color: '#4338CA'}}>{formatCurrency(item.profit)}</span>
+                
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', padding: '25px 30px', gap: '20px'}}>
+                  <div>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: '#64748B', marginBottom: '8px', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase'}}>
+                      <ArrowUpCircle size={14} color="#10B981" /> Ingresos
+                    </div>
+                    <span style={{fontSize: '22px', fontWeight: '900', color: '#166534'}}>{formatCurrency(item.sales)}</span>
+                  </div>
+                  
+                  <div>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: '#64748B', marginBottom: '8px', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase'}}>
+                      <ArrowDownCircle size={14} color="#EF4444" /> Gastos
+                    </div>
+                    <span style={{fontSize: '22px', fontWeight: '900', color: '#991B1B'}}>{formatCurrency(item.expenses)}</span>
+                  </div>
+
+                  <div style={{background: '#F0FDF4', padding: '10px 20px', borderRadius: '20px', border: '1px solid #DCFCE7'}}>
+                    <div style={{color: '#15803D', marginBottom: '5px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase'}}>Ganancia Neta</div>
+                    <span style={{fontSize: '22px', fontWeight: '900', color: '#15803D'}}>{formatCurrency(item.profit)}</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
+        {/* RESUMEN TOTAL HISTÓRICO */}
+        <div style={{background: '#1E293B', padding: '30px', borderRadius: '40px', marginBottom: '40px', color: 'white', display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
+          <div style={{textAlign: 'center'}}>
+            <p style={{margin: 0, fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px'}}>Ventas Totales</p>
+            <p style={{margin: '5px 0 0', fontSize: '24px', fontWeight: '900', color: '#4ADE80'}}>{formatCurrency(globalStats.totalSales)}</p>
+          </div>
+          <div style={{width: '1px', height: '40px', background: 'rgba(255,255,255,0.1)'}}></div>
+          <div style={{textAlign: 'center'}}>
+            <p style={{margin: 0, fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px'}}>Gastos Totales</p>
+            <p style={{margin: '5px 0 0', fontSize: '24px', fontWeight: '900', color: '#F87171'}}>{formatCurrency(globalStats.totalExpenses)}</p>
+          </div>
+          <div style={{width: '1px', height: '40px', background: 'rgba(255,255,255,0.1)'}}></div>
+          <div style={{textAlign: 'center'}}>
+            <p style={{margin: 0, fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px'}}>Utilidad Neta</p>
+            <p style={{margin: '5px 0 0', fontSize: '28px', fontWeight: '900', color: '#FDE047'}}>{formatCurrency(globalStats.netProfit)}</p>
+          </div>
+        </div>
+
         <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px'}}>
-          {/* TOP PRODUCTOS */}
-          <div style={{background: '#F8FAFC', padding: '25px', borderRadius: '30px'}}>
+          {/* TOP PRODUCTOS DEL DÍA */}
+          <div style={{background: '#F8FAFC', padding: '25px', borderRadius: '30px', border: '1px solid #F1F5F9'}}>
             <div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#475569'}}>
               <ShoppingBag size={20} />
-              <h3 style={{margin: 0, fontSize: '16px', fontWeight: '800'}}>Ventas de Hoy</h3>
+              <h3 style={{margin: 0, fontSize: '16px', fontWeight: '800'}}>Ventas de Hoy ({selectedDate})</h3>
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
               {productStats.map(([name, count]) => (
@@ -104,10 +103,13 @@ const AccountingModal = ({ isOpen, onClose, selectedDate, deliveryStats, product
 
           {/* LIQUIDACION DOMICILIARIOS */}
           <div style={{background: '#FAF5FF', padding: '25px', borderRadius: '30px', border: '1px solid #F3E8FF'}}>
-            <h3 style={{margin: '0 0 20px 0', fontSize: '16px', fontWeight: '800', color: '#6B21A8'}}>Liquidación Domicilios</h3>
+            <div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#6B21A8'}}>
+              <DollarSign size={20} />
+              <h3 style={{margin: 0, fontSize: '16px', fontWeight: '800'}}>Liquidación Domicilios</h3>
+            </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
               {deliveryStats.map(([movil, data]) => (
-                <div key={movil} style={{background: 'white', padding: '15px', borderRadius: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.02)'}}>
+                <div key={movil} style={{background: 'white', padding: '15px', borderRadius: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #F3E8FF'}}>
                   <div>
                     <span style={{fontSize: '11px', fontWeight: '800', color: '#A855F7', textTransform: 'uppercase'}}>Móvil {movil}</span>
                     <p style={{margin: 0, fontSize: '13px', color: '#64748B'}}>{data.count} entregas</p>
@@ -118,10 +120,6 @@ const AccountingModal = ({ isOpen, onClose, selectedDate, deliveryStats, product
               {deliveryStats.length === 0 && <p style={{fontSize: '13px', color: '#94A3B8', textAlign: 'center'}}>Sin domicilios hoy</p>}
             </div>
           </div>
-        </div>
-
-        <div style={{marginTop: '30px', textAlign: 'center', color: '#94A3B8', fontSize: '12px'}}>
-           Mostrando datos para el día: <strong>{selectedDate}</strong> y totales históricos.
         </div>
       </div>
     </div>
