@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Heart, LogIn, Mail, Lock, Loader2 } from 'lucide-react';
+import { Heart, LogIn, Lock, Loader2 } from 'lucide-react';
 
 const Login = ({ onLogin, loginError }) => {
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!password) return;
     setIsSubmitting(true);
-    await onLogin(email, password);
+    // Usamos un correo fijo por detrás para simplificar el acceso
+    await onLogin('admin@mamiyoyita.com', password);
     setIsSubmitting(false);
   };
 
@@ -24,19 +25,7 @@ const Login = ({ onLogin, loginError }) => {
 
          <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
            <div className="info-group" style={{textAlign: 'left'}}>
-             <label className="info-label"><Mail size={12} /> Correo Electrónico</label>
-             <input 
-               className="premium-input" 
-               type="email" 
-               value={email} 
-               onChange={e => setEmail(e.target.value)} 
-               placeholder="admin@mamiyoyita.com" 
-               required
-             />
-           </div>
-
-           <div className="info-group" style={{textAlign: 'left'}}>
-             <label className="info-label"><Lock size={12} /> Contraseña</label>
+             <label className="info-label"><Lock size={12} /> Contraseña de Acceso</label>
              <input 
                className="premium-input" 
                type="password" 
@@ -44,12 +33,14 @@ const Login = ({ onLogin, loginError }) => {
                onChange={e => setPassword(e.target.value)} 
                placeholder="••••••••" 
                required
+               autoFocus
+               style={{textAlign: 'center', fontSize: '20px', letterSpacing: '5px'}}
              />
            </div>
 
            {loginError && (
              <div style={{color: '#EF4444', fontSize: '14px', fontWeight: '600', background: '#FEE2E2', padding: '10px', borderRadius: '10px'}}>
-               {loginError}
+               ❌ Clave incorrecta.
              </div>
            )}
 
@@ -60,12 +51,12 @@ const Login = ({ onLogin, loginError }) => {
              disabled={isSubmitting}
            >
              {isSubmitting ? <Loader2 className="animate-spin" /> : <LogIn size={20} />} 
-             {isSubmitting ? 'Iniciando sesión...' : 'Entrar al Sistema'}
+             {isSubmitting ? 'Verificando...' : 'Entrar al Sistema'}
            </button>
          </form>
          
          <p style={{marginTop: '20px', fontSize: '12px', color: '#A1A1A1'}}>
-           Este es un acceso privado. Si no tienes credenciales, contacta al soporte técnico.
+           Protección de Datos Activa 🛡️
          </p>
       </div>
     </div>
