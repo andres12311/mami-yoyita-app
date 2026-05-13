@@ -34,20 +34,16 @@ const OrderCard = ({ pedido, onWhatsApp, onEdit, onDelete, onUpdateStatus, onSav
       <div className="card-body">
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
           <span style={{fontSize: '18px', fontWeight: '900', color: '#FFB7C5'}}>ORDEN #{pedido['Unnamed: 0']}</span>
-          <div className="delivery-tag"><Clock size={16} color="#FF8DA1" /> {formatTime12h(pedido['Hora entrega'])}</div>
+          <div className="delivery-tag"><Clock size={16} /> {formatTime12h(pedido['Hora entrega'])}</div>
         </div>
         <h2 className="product-title">{pedido.Pedido}</h2>
         
-        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px'}}>
-          <div className="info-group">
-            <span className="info-label">Cliente (Paga)</span>
-            <span className="info-value" style={{fontSize: '15px'}}>{pedido['nombre cliente']}</span>
-            <span style={{color: '#717171', fontSize: '13px'}}>{pedido.Telefono || 'Sin tel'}</span>
-          </div>
-          <div className="info-group">
-            <span className="info-label">Receptor (Recibe)</span>
-            <span className="info-value" style={{fontSize: '15px'}}>{pedido.nombreReceptor || '---'}</span>
-            <span style={{color: '#717171', fontSize: '13px'}}>{pedido.telefonoReceptor || 'Sin tel'}</span>
+        <div className="info-group">
+          <span className="info-label">Cliente</span>
+          <span className="info-value" style={{fontSize: '18px'}}>{pedido['nombre cliente']}</span>
+          <div style={{display: 'flex', gap: '10px', marginTop: '5px', fontSize: '14px', color: '#717171'}}>
+            <span>📞 Cliente: {pedido.Telefono || '---'}</span>
+            {pedido.telefonoReceptor && <span>📞 Receptor: {pedido.telefonoReceptor}</span>}
           </div>
         </div>
 

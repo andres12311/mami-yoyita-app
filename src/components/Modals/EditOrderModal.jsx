@@ -35,27 +35,15 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
         </div>
 
         <div className="modal-body" style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-            <div className="info-group">
-              <label className="info-label">Nombre del Cliente *</label>
-              <input 
-                className="premium-input" 
-                value={editingPedido['nombre cliente'] || ''} 
-                onChange={e => handleChange('nombre cliente', e.target.value)} 
-                maxLength={100}
-                placeholder="Quién compra"
-              />
-            </div>
-            <div className="info-group">
-              <label className="info-label">Nombre del Receptor</label>
-              <input 
-                className="premium-input" 
-                value={editingPedido.nombreReceptor || ''} 
-                onChange={e => handleChange('nombreReceptor', e.target.value)} 
-                maxLength={100}
-                placeholder="Quién recibe"
-              />
-            </div>
+          <div className="info-group">
+            <label className="info-label">Nombre del Cliente *</label>
+            <input 
+              className="premium-input" 
+              value={editingPedido['nombre cliente'] || ''} 
+              onChange={e => handleChange('nombre cliente', e.target.value)} 
+              maxLength={100}
+              placeholder="Nombre completo del cliente"
+            />
           </div>
           
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
@@ -84,16 +72,16 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
               />
             </div>
           </div>
-            <div className="info-group">
-              <label className="info-label">Hora Entrega</label>
-              <input 
-                className="premium-input" 
-                type="text"
-                value={editingPedido['Hora entrega'] || ''} 
-                onChange={e => handleChange('Hora entrega', e.target.value)} 
-                placeholder="Ej: 2:00 pm o 8:30 am"
-              />
-            </div>
+
+          <div className="info-group">
+            <label className="info-label">Hora Entrega</label>
+            <input 
+              className="premium-input" 
+              type="text"
+              value={editingPedido['Hora entrega'] || ''} 
+              onChange={e => handleChange('Hora entrega', e.target.value)} 
+              placeholder="Ej: 2:00 pm o 8:30 am"
+            />
           </div>
 
           <div className="info-group">
