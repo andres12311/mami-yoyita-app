@@ -12,6 +12,12 @@ const getStatusInfo = (status) => {
 
 const OrderCard = ({ pedido, onWhatsApp, onEdit, onDelete, onUpdateStatus, onSavePedido }) => {
   const s = getStatusInfo(pedido.status);
+  const [movilLocal, setMovilLocal] = React.useState(pedido.movil || '');
+  
+  // Sincronizar si el pedido cambia externamente
+  React.useEffect(() => {
+    setMovilLocal(pedido.movil || '');
+  }, [pedido.movil]);
 
   const handleDelete = () => {
     const clientName = pedido['nombre cliente'] || 'Sin nombre';
@@ -68,8 +74,9 @@ const OrderCard = ({ pedido, onWhatsApp, onEdit, onDelete, onUpdateStatus, onSav
             <input 
               type="text" 
               placeholder="Ej: 1" 
-              value={pedido.movil || ''} 
-              onChange={(e) => onSavePedido({ ...pedido, movil: e.target.value })}
+              value={movilLocal} 
+              onChange={(e) => setMovilLocal(e.target.value)}
+              onBlur={() => { if (movilLocal !== (pedido.movil || '')) onSavePedido({ ...pedido, movil: movilLocal }); }}
               style={{width: '60px', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold', textAlign: 'center'}}
             />
             <div style={{flex: 1, textAlign: 'right', fontSize: '12px', fontWeight: 'bold', color: '#0369A1'}}>
