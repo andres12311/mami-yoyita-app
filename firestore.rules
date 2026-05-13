@@ -2,17 +2,65 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Pedidos: solo usuarios autenticados
-    match /pedidos/{pedido} {
-      allow read, write: if request.auth != null;
+    // ═══════════════════════════════════════════
+    // FUNCIONES DE VALIDACIÓN
+    // ═══════════════════════════════════════════
+    
+    // Verificar que el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Config (producción, gastos): solo usuarios autenticados
-    match /config/{doc} {
-      allow read, write: if request.auth != null;
+    // Validar que un string no sea excesivamente largo (anti-payload bombing)
+    function isValidString(field, maxLen) {
+      return field is string && field.size() <= maxLen;
     }
     
-    // Bloquear todo lo demás
+    // Validar que un número esté en rango razonable
+    function isValidNumber(field, minVal, maxVal) {
+      return field is number && field >= minVal && field <= maxVal;
+    }
+    
+    // ═══════════════════════════════════════════
+    // PEDIDOS: validación estricta de campos
+    // ═══════════════════════════════════════════
+    match /pedidos/{pedidoId} {
+      // Solo lectura si está autenticado
+      allow read: if isAuthenticated();
+      
+      // Escritura con validación de datos
+      allow create, update: if isAuthenticated()
+        // Validar que el documento no exceda un tamaño razonable
+        && request.resource.data.keys().size() <= 25
+        // Validar campos de texto (anti-injection, anti-payload)
+        && isValidString(request.resource.data.get('Pedido', ''), 200)
+        && isValidString(request.resource.data.get('nombre cliente', ''), 150)
+        && isValidString(request.resource.data.get('Direccion', ''), 300)
+        && isValidString(request.resource.data.get('Telefono', ''), 25)
+        && isValidString(request.resource.data.get('Ingredientes', ''), 1000)
+        && isValidString(request.resource.data.get('Hora entrega', ''), 30)
+        // Validar campos numéricos (prevenir valores absurdos)
+        && isValidNumber(request.resource.data.get('precioDesayuno', 0), 0, 50000000)
+        && isValidNumber(request.resource.data.get('precioDomicilio', 0), 0, 5000000);
+      
+      // Eliminar solo si está autenticado
+      allow delete: if isAuthenticated();
+    }
+    
+    // ═══════════════════════════════════════════
+    // CONFIG: producción, gastos, etc.
+    // ═══════════════════════════════════════════
+    match /config/{configDoc} {
+      allow read: if isAuthenticated();
+      
+      // Limitar tamaño del documento de configuración
+      allow write: if isAuthenticated()
+        && request.resource.data.keys().size() <= 400;
+    }
+    
+    // ═══════════════════════════════════════════
+    // BLOQUEAR TODO LO DEMÁS
+    // ═══════════════════════════════════════════
     match /{document=**} {
       allow read, write: if false;
     }
