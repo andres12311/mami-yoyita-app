@@ -1,6 +1,6 @@
 import React from 'react';
 import { Phone, Edit2, Trash2, Clock, MapPin, Share2, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, formatTime12h } from '../utils/formatters';
 
 const getStatusInfo = (status) => {
   switch(status) {
@@ -34,7 +34,7 @@ const OrderCard = ({ pedido, onWhatsApp, onEdit, onDelete, onUpdateStatus, onSav
       <div className="card-body">
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
           <span style={{fontSize: '18px', fontWeight: '900', color: '#FFB7C5'}}>ORDEN #{pedido['Unnamed: 0']}</span>
-          <div className="delivery-tag"><Clock size={16} /> {pedido['Hora entrega'] || '--:--'}</div>
+          <div className="delivery-tag"><Clock size={16} color="#FF8DA1" /> {formatTime12h(pedido['Hora entrega'])}</div>
         </div>
         <h2 className="product-title">{pedido.Pedido}</h2>
         

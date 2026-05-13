@@ -21,6 +21,7 @@ import ExpenseModal from './components/Modals/ExpenseModal';
 
 // Services
 import { savePedidoCloud, deletePedidoCloud, saveConfigCloud } from './services/firebaseService';
+import { sortableTime } from './utils/formatters';
 
 function App() {
   const { isAuthenticated, loading: authLoading, error: authError, login, logout } = useAuth();
@@ -60,19 +61,19 @@ function App() {
       .sort((a, b) => {
         let valA, valB;
         if (sortConfig.key === 'Hora entrega') {
-          const formatTime = (t) => {
-            if (!t) return '99:99';
-            const parts = t.toString().split(':');
-            return (parts[0] || '0').padStart(2, '0') + ':' + (parts[1] || '0').padStart(2, '0');
-          };
-          valA = formatTime(a['Hora entrega']);
-          valB = formatTime(b['Hora entrega']);
+          valA = sortableTime(a['Hora entrega']);
+          valB = sortableTime(b['Hora entrega']);
         } else {
           valA = parseInt(a['Unnamed: 0'] || 0);
           valB = parseInt(b['Unnamed: 0'] || 0);
         }
         if (valA === valB) return a.internalId > b.internalId ? 1 : -1;
-        return sortConfig.direction === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
+        
+        // Log para depuración (puedes verlo en la consola F12)
+        console.log(`Comparando ${a['nombre cliente']} (${valA}) con ${b['nombre cliente']} (${valB})`);
+        
+        const comparison = valA.localeCompare(valB);
+        return sortConfig.direction === 'asc' ? comparison : -comparison;
       });
   }, [pedidos, searchTerm, sortConfig, selectedDate]);
 
