@@ -18,6 +18,7 @@ import EditOrderModal from './components/Modals/EditOrderModal';
 import AccountingModal from './components/Modals/AccountingModal';
 import SummaryModal from './components/Modals/SummaryModal';
 import ExpenseModal from './components/Modals/ExpenseModal';
+import DeliveryExportModal from './components/Modals/DeliveryExportModal';
 
 // Services
 import { savePedidoCloud, deletePedidoCloud, saveConfigCloud } from './services/firebaseService';
@@ -41,6 +42,7 @@ function App() {
   const [showSummary, setShowSummary] = useState(false);
   const [showAccounting, setShowAccounting] = useState(false);
   const [showExpenses, setShowExpenses] = useState(false);
+  const [showDeliveryExport, setShowDeliveryExport] = useState(false);
 
   // Filter & Sort Logic
   const displayPedidos = useMemo(() => {
@@ -148,6 +150,7 @@ function App() {
         sortConfig={sortConfig}
         setSortConfig={setSortConfig}
         onNewPedido={handleNewPedido}
+        setShowDeliveryExport={setShowDeliveryExport}
       />
 
       <Dashboard 
@@ -200,6 +203,13 @@ function App() {
         selectedDate={selectedDate} 
         gastosDetalle={gastosDetalle} 
         onSaveGastos={(data) => { setGastosDetalle(data); saveConfigCloud('gastos', data); }} 
+      />
+
+      <DeliveryExportModal 
+        isOpen={showDeliveryExport} 
+        onClose={() => setShowDeliveryExport(false)} 
+        displayPedidos={displayPedidos}
+        selectedDate={selectedDate}
       />
     </div>
   );
