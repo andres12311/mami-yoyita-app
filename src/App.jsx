@@ -108,7 +108,6 @@ function App() {
       'Unnamed: 0': maxOrder + 1, 
       Pedido: '', 
       'nombre cliente': '', 
-      nombreReceptor: '',
       Direccion: '', 
       Telefono: '', 
       telefonoReceptor: '',
