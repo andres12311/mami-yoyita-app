@@ -6,9 +6,9 @@ service cloud.firestore {
     // FUNCIONES DE VALIDACIÓN
     // ═══════════════════════════════════════════
     
-    // Verificar que el usuario está autenticado
+    // Verificar que el usuario está autenticado Y es el administrador autorizado
     function isAuthenticated() {
-      return request.auth != null;
+      return request.auth != null && request.auth.token.email == "admin@mamiyoyita.com";
     }
     
     // Validar que un string no sea excesivamente largo (anti-payload bombing)
