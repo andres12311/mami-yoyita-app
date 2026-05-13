@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { X, Download, Share2, MapPin, Clock, Phone } from 'lucide-react';
 import html2canvas from 'html2canvas';
-import { formatTime12h } from '../../utils/formatters';
+import { formatTime12h, sortableTime } from '../../utils/formatters';
 
 const DeliveryExportModal = ({ isOpen, onClose, displayPedidos, selectedDate }) => {
   const exportRef = useRef(null);
@@ -25,10 +25,10 @@ const DeliveryExportModal = ({ isOpen, onClose, displayPedidos, selectedDate }) 
     link.click();
   };
 
-  // Ordenar por hora para la lista de domicilios
+  // Ordenar cronológicamente usando la utilidad sortableTime
   const sortedPedidos = [...displayPedidos].sort((a, b) => {
-    const timeA = a['Hora entrega'] || '99:99';
-    const timeB = b['Hora entrega'] || '99:99';
+    const timeA = sortableTime(a['Hora entrega']);
+    const timeB = sortableTime(b['Hora entrega']);
     return timeA.localeCompare(timeB);
   });
 
