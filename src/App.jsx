@@ -71,10 +71,13 @@ function App() {
         }
         if (valA === valB) return a.internalId > b.internalId ? 1 : -1;
         
-        // Log para depuración (puedes verlo en la consola F12)
-        console.log(`Comparando ${a['nombre cliente']} (${valA}) con ${b['nombre cliente']} (${valB})`);
+        let comparison;
+        if (typeof valA === 'string' && typeof valB === 'string') {
+          comparison = valA.localeCompare(valB);
+        } else {
+          comparison = valA - valB;
+        }
         
-        const comparison = valA.localeCompare(valB);
         return sortConfig.direction === 'asc' ? comparison : -comparison;
       });
   }, [pedidos, searchTerm, sortConfig, selectedDate]);
