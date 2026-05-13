@@ -38,9 +38,17 @@ const OrderCard = ({ pedido, onWhatsApp, onEdit, onDelete, onUpdateStatus, onSav
         </div>
         <h2 className="product-title">{pedido.Pedido}</h2>
         
-        <div className="info-group">
-          <span className="info-label">Cliente</span>
-          <span className="info-value">{pedido['nombre cliente']} <span style={{color: '#717171', fontWeight: '400', fontSize: '15px'}}>• {pedido.Telefono}</span></span>
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px'}}>
+          <div className="info-group">
+            <span className="info-label">Cliente (Paga)</span>
+            <span className="info-value" style={{fontSize: '15px'}}>{pedido['nombre cliente']}</span>
+            <span style={{color: '#717171', fontSize: '13px'}}>{pedido.Telefono || 'Sin tel'}</span>
+          </div>
+          <div className="info-group">
+            <span className="info-label">Receptor (Recibe)</span>
+            <span className="info-value" style={{fontSize: '15px'}}>{pedido.nombreReceptor || '---'}</span>
+            <span style={{color: '#717171', fontSize: '13px'}}>{pedido.telefonoReceptor || 'Sin tel'}</span>
+          </div>
         </div>
 
         <div className="address-box" style={{position: 'relative'}}>

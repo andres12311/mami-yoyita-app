@@ -35,20 +35,32 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
         </div>
 
         <div className="modal-body" style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-          <div className="info-group">
-            <label className="info-label">Nombre del Cliente *</label>
-            <input 
-              className="premium-input" 
-              value={editingPedido['nombre cliente'] || ''} 
-              onChange={e => handleChange('nombre cliente', e.target.value)} 
-              maxLength={100}
-              placeholder="Nombre completo del cliente"
-            />
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+            <div className="info-group">
+              <label className="info-label">Nombre del Cliente *</label>
+              <input 
+                className="premium-input" 
+                value={editingPedido['nombre cliente'] || ''} 
+                onChange={e => handleChange('nombre cliente', e.target.value)} 
+                maxLength={100}
+                placeholder="Quién compra"
+              />
+            </div>
+            <div className="info-group">
+              <label className="info-label">Nombre del Receptor</label>
+              <input 
+                className="premium-input" 
+                value={editingPedido.nombreReceptor || ''} 
+                onChange={e => handleChange('nombreReceptor', e.target.value)} 
+                maxLength={100}
+                placeholder="Quién recibe"
+              />
+            </div>
           </div>
           
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
             <div className="info-group">
-              <label className="info-label">Teléfono</label>
+              <label className="info-label">Teléfono Cliente</label>
               <input 
                 className="premium-input" 
                 type="tel"
@@ -56,9 +68,22 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
                 value={editingPedido.Telefono || ''} 
                 onChange={e => handleChange('Telefono', e.target.value.replace(/[^0-9+() -]/g, ''))} 
                 maxLength={20}
-                placeholder="3001234567"
+                placeholder="Celular del cliente"
               />
             </div>
+            <div className="info-group">
+              <label className="info-label">Teléfono Receptor</label>
+              <input 
+                className="premium-input" 
+                type="tel"
+                inputMode="numeric"
+                value={editingPedido.telefonoReceptor || ''} 
+                onChange={e => handleChange('telefonoReceptor', e.target.value.replace(/[^0-9+() -]/g, ''))} 
+                maxLength={20}
+                placeholder="Celular de quien recibe"
+              />
+            </div>
+          </div>
             <div className="info-group">
               <label className="info-label">Hora Entrega</label>
               <input 
