@@ -12,10 +12,17 @@ const DeliveryExportModal = ({ isOpen, onClose, displayPedidos, selectedDate }) 
     if (!exportRef.current) return;
     
     const canvas = await html2canvas(exportRef.current, {
-      scale: 2, // Mejor calidad
+      scale: 4, // Calidad ultra HD para evitar borrosidad
       backgroundColor: '#FFFFFF',
       logging: false,
-      useCORS: true
+      useCORS: true,
+      onclone: (clonedDoc, clonedElement) => {
+        // Ensanchar la imagen al momento de capturarla para que no se vea apretada
+        clonedElement.style.width = '800px';
+        clonedElement.style.padding = '50px';
+        clonedElement.style.borderRadius = '0';
+        clonedElement.style.border = 'none';
+      }
     });
     
     const image = canvas.toDataURL("image/png");
