@@ -102,19 +102,30 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
               value={editingPedido.Pedido || ''} 
               onChange={e => handleChange('Pedido', e.target.value)} 
               maxLength={150}
-              placeholder="Nombre del producto"
+              placeholder="Nombre del producto principal"
             />
           </div>
 
           <div className="info-group">
-            <label className="info-label">Detalles / Ingredientes</label>
+            <label className="info-label">Ingredientes Extras (Para Producción)</label>
+            <input 
+              className="premium-input" 
+              value={editingPedido.ingredientesProduccion || ''} 
+              onChange={e => handleChange('ingredientesProduccion', e.target.value)} 
+              maxLength={300}
+              placeholder="Ej: 1 lb fresas, 2 duraznos (Separados por coma)"
+            />
+          </div>
+
+          <div className="info-group">
+            <label className="info-label">Detalles / Mensajes (No va a producción)</label>
             <textarea 
               className="premium-input" 
               style={{height: '100px', resize: 'none'}} 
               value={editingPedido.Ingredientes || ''} 
               onChange={e => handleChange('Ingredientes', e.target.value)} 
               maxLength={500}
-              placeholder="Detalles adicionales del pedido"
+              placeholder="Dedicatorias, colores, o mensajes para el pedido"
             />
           </div>
 

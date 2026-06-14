@@ -26,6 +26,15 @@ export const recipes = {
   "COMBO_DESAYUNO": [
     { item: "Sandwich", amount: 1, unit: "und" },
     { item: "Parfait", amount: 1, unit: "und" }
+  ],
+  "MEDIA_ZANAHORIA_PINA": [
+    { item: "Harina", amount: 250, unit: "gr" },
+    { item: "Piña en cubitos", amount: 100, unit: "gr" },
+    { item: "Azucar", amount: 150, unit: "gr" },
+    { item: "Polvo hornear", amount: 30, unit: "gr" },
+    { item: "Huevo", amount: 5, unit: "und" },
+    { item: "Zanahoria", amount: 1, unit: "lb" },
+    { item: "Aceite", amount: 250, unit: "ml" }
   ]
 };
 
@@ -36,5 +45,8 @@ export const productToRecipe = {
   "Genovesa": "GENOVESA",
   "Tarta Chocolate": "CHOCOLATE",
   "Pandeyucas": "PANDEYUCAS",
-  "Desayuno": "COMBO_DESAYUNO"
+  "Desayuno": "COMBO_DESAYUNO",
+  "1/2 zanahoria piña": "MEDIA_ZANAHORIA_PINA",
+  "1/2 Zanahoria Piña": "MEDIA_ZANAHORIA_PINA",
+  "Zanahoria Piña": "MEDIA_ZANAHORIA_PINA"
 };

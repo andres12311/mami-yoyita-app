@@ -85,11 +85,20 @@ const OrderCard = ({ pedido, onWhatsApp, onEdit, onDelete, onUpdateStatus, onSav
         </div>
 
         <div className="info-group">
-          <span className="info-label">Detalles del Pedido</span>
-          <div style={{background: '#F8FAFC', padding: '20px', borderRadius: '20px', fontSize: '18px', fontStyle: 'italic', color: '#717171', border: '1px dashed #E2E8F0', lineHeight: '1.5'}}>
+          <span className="info-label">Detalles / Mensajes</span>
+          <div style={{background: '#F8FAFC', padding: '15px', borderRadius: '15px', fontSize: '16px', fontStyle: 'italic', color: '#717171', border: '1px dashed #E2E8F0', lineHeight: '1.5'}}>
             {pedido.Ingredientes || 'Sin detalles adicionales'}
           </div>
         </div>
+
+        {pedido.ingredientesProduccion && (
+          <div className="info-group" style={{marginTop: '10px'}}>
+            <span className="info-label" style={{color: '#0D9488'}}>Ingredientes Extras (Producción)</span>
+            <div style={{background: '#F0FDFA', padding: '15px', borderRadius: '15px', fontSize: '16px', fontWeight: 'bold', color: '#0F766E', border: '1px solid #CCFBF1', lineHeight: '1.5'}}>
+              {pedido.ingredientesProduccion}
+            </div>
+          </div>
+        )}
 
         <div className="status-selector no-print" style={{display: 'flex', gap: '10px', justifyContent: 'center', background: '#F8FAFC', padding: '15px', borderRadius: '25px', marginTop: '20px'}}>
           <button className={`status-btn ${pedido.status === 'pendiente' ? 'active' : ''}`} style={{background: '#FEE2E2', color: '#EF4444'}} onClick={() => onUpdateStatus(pedido.internalId, 'pendiente')}>Pendiente</button>

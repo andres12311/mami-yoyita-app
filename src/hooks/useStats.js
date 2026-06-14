@@ -45,6 +45,17 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
       }
     });
 
+    // Agregar los ingredientes extra de cada pedido a la tabla final de producción
+    displayPedidos.forEach(p => {
+      if (p.ingredientesProduccion) {
+        const extras = p.ingredientesProduccion.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        extras.forEach(extra => {
+          const normalizedExtra = extra.charAt(0).toUpperCase() + extra.slice(1).toLowerCase();
+          finalTable[normalizedExtra] = (finalTable[normalizedExtra] || 0) + 1;
+        });
+      }
+    });
+
     return Object.entries(finalTable).sort((a, b) => b[1] - a[1]);
   }, [displayPedidos, produccionManual, selectedDate]);
 

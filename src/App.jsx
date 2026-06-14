@@ -118,6 +118,7 @@ function App() {
       telefonoReceptor: '',
       'Hora entrega': '', 
       Ingredientes: '', 
+      ingredientesProduccion: '',
       precioDesayuno: 0, 
       precioDomicilio: 0, 
       fechaEntrega: selectedDate, 
