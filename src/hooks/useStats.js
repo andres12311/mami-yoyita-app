@@ -25,17 +25,9 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
 
   const productionSummary = useMemo(() => {
     const summary = {};
-    displayPedidos.forEach(p => {
-      const name = p.Pedido || '';
-      // Intentar limpiar el nombre (ej: "2 x Genovesas" -> "Genovesa")
-      let cleanName = name.replace(/^\d+\s*[xX]?\s*/, '').trim();
-      if (cleanName.endsWith('s')) cleanName = cleanName.slice(0, -1); // Plural simple
-      
-      const normalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase();
-      if (normalized) {
-        summary[normalized] = (summary[normalized] || 0) + 1;
-      }
-    });
+    
+    // Ya NO agregamos p.Pedido a la producción, por petición del usuario.
+    // Solo se "stackeará" lo que se ponga en el nuevo campo de ingredientes.
 
     const manual = produccionManual[selectedDate] || [];
     const finalTable = { ...summary };
