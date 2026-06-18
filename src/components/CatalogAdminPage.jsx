@@ -32,6 +32,7 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
   const [existingImages, setExistingImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [savingState, setSavingState] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -91,9 +92,11 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
   const handleSave = async () => {
     if (!editProduct.nombre.trim()) return;
     setSaving(true);
+    setSavingState('Preparando imágenes...');
     try {
       let newUrls = [];
       if (imageFiles.length > 0) {
+        setSavingState(`Subiendo ${imageFiles.length} imagen(es)...`);
         newUrls = await Promise.all(
           imageFiles.map(async (imgObj, idx) => {
             return await uploadProductImage(imgObj.file, `${editProduct.id}_${Date.now()}_${idx}`);
@@ -101,6 +104,7 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
         );
       }
       
+      setSavingState('Guardando producto...');
       const finalImages = [...existingImages, ...newUrls];
       
       await saveCatalogItem({ 
@@ -114,9 +118,10 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
       setImageFiles([]);
     } catch (err) {
       console.error('Error al guardar producto:', err);
-      alert('Error al guardar. Intenta de nuevo.');
+      alert('Error al guardar: ' + (err.message || 'Intenta de nuevo.'));
     } finally {
       setSaving(false);
+      setSavingState('');
     }
   };
 
@@ -362,7 +367,7 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
             <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
               <button className="btn-main" style={{ flex: 1, justifyContent: 'center', fontSize: '1.05rem', padding: '16px', opacity: saving ? 0.6 : 1 }} onClick={handleSave} disabled={saving || !editProduct?.nombre?.trim()}>
                 {saving ? <Loader2 size={22} className="animate-spin" /> : <Save size={22} />}
-                {saving ? 'Guardando...' : 'Guardar Producto'}
+                {saving ? (savingState || 'Guardando...') : 'Guardar Producto'}
               </button>
             </div>
           </>
