@@ -33,6 +33,9 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
   const [imageFiles, setImageFiles] = useState([]);
   const [saving, setSaving] = useState(false);
   const [savingState, setSavingState] = useState('');
+  const [debugLog, setDebugLog] = useState([]);
+  
+  const addDebug = (msg) => setDebugLog(prev => [...prev, msg]);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -92,19 +95,33 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
   const handleSave = async () => {
     if (!editProduct.nombre.trim()) return;
     setSaving(true);
+    setDebugLog([]);
     setSavingState('Preparando imágenes...');
+    addDebug('Inicio de guardado');
     try {
       let newUrls = [];
       if (imageFiles.length > 0) {
         setSavingState(`Subiendo ${imageFiles.length} imagen(es)...`);
+        addDebug(`Iniciando Promise.all para ${imageFiles.length} imágenes`);
+        
         newUrls = await Promise.all(
           imageFiles.map(async (imgObj, idx) => {
-            return await uploadProductImage(imgObj.file, `${editProduct.id}_${Date.now()}_${idx}`);
+            addDebug(`Procesando imagen ${idx + 1}...`);
+            try {
+              const url = await uploadProductImage(imgObj.file, `${editProduct.id}_${Date.now()}_${idx}`);
+              addDebug(`Imagen ${idx + 1} completada`);
+              return url;
+            } catch (imgErr) {
+              addDebug(`Error en imagen ${idx + 1}: ${imgErr.message}`);
+              throw imgErr;
+            }
           })
         );
+        addDebug('Todas las imágenes procesadas');
       }
       
       setSavingState('Guardando producto...');
+      addDebug('Guardando en base de datos...');
       const finalImages = [...existingImages, ...newUrls];
       
       await saveCatalogItem({ 
@@ -112,12 +129,14 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
         imagen: finalImages[0] || '',
         imagenes: finalImages 
       });
+      addDebug('Guardado exitoso');
       setView('list');
       setEditProduct(null);
       setExistingImages([]);
       setImageFiles([]);
     } catch (err) {
       console.error('Error al guardar producto:', err);
+      addDebug(`Error crítico: ${err.message}`);
       alert('Error al guardar: ' + (err.message || 'Intenta de nuevo.'));
     } finally {
       setSaving(false);
@@ -370,6 +389,13 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
                 {saving ? (savingState || 'Guardando...') : 'Guardar Producto'}
               </button>
             </div>
+            
+            {debugLog.length > 0 && (
+              <div style={{ marginTop: '15px', padding: '10px', background: '#f8f9fa', borderRadius: '8px', fontSize: '12px', color: '#666', fontFamily: 'monospace' }}>
+                <strong>Log de depuración:</strong>
+                {debugLog.map((log, i) => <div key={i}>&gt; {log}</div>)}
+              </div>
+            )}
           </>
         ) : (
           /* ══════════════ LIST VIEW ══════════════ */
