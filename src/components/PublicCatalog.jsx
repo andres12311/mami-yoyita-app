@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Heart, ShoppingBag, MessageCircle, Loader2, ChefHat, Sparkles } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Heart, ShoppingBag, MessageCircle, Loader2, ChefHat, Sparkles, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CATEGORIES = ['Todos', 'Desayunos', 'Tortas y Cupcakes', 'Mama 2026 💝', 'Extra'];
 
@@ -41,7 +41,130 @@ const ImagePlaceholder = () => (
   </div>
 );
 
-const ProductCard = ({ producto, config, index }) => {
+const ProductModal = ({ producto, config, onClose }) => {
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, []);
+
+  const imagenes = producto.imagenes && producto.imagenes.length > 0 
+    ? producto.imagenes 
+    : (producto.imagen ? [producto.imagen] : []);
+
+  const nextImg = (e) => {
+    e.stopPropagation();
+    setCurrentImageIdx((prev) => (prev + 1) % imagenes.length);
+  };
+
+  const prevImg = (e) => {
+    e.stopPropagation();
+    setCurrentImageIdx((prev) => (prev - 1 + imagenes.length) % imagenes.length);
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)',
+        zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '20px', animation: 'fadeIn 0.3s ease forwards'
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: '#fff', borderRadius: 24, width: '100%', maxWidth: 480,
+          maxHeight: '90vh', overflowY: 'auto', position: 'relative',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+          animation: 'slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} style={{
+            position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.85)',
+            border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
+          <X size={20} color="#3d2c3e" />
+        </button>
+
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', backgroundColor: '#f8f9fa', borderRadius: '24px 24px 0 0', overflow: 'hidden' }}>
+          {imagenes.length > 0 ? (
+            <img src={imagenes[currentImageIdx]} alt={producto.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.3s' }} />
+          ) : (
+            <ImagePlaceholder />
+          )}
+
+          {imagenes.length > 1 && (
+            <>
+              <button onClick={prevImg} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.85)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <ChevronLeft size={22} color="#3d2c3e" />
+              </button>
+              <button onClick={nextImg} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.85)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <ChevronRight size={22} color="#3d2c3e" />
+              </button>
+              <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6 }}>
+                {imagenes.map((_, i) => (
+                  <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: i === currentImageIdx ? '#c0547a' : 'rgba(255,255,255,0.8)', boxShadow: '0 2px 4px rgba(0,0,0,0.4)', transition: 'background 0.3s' }} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div style={{ padding: '24px' }}>
+          {producto.categoria && (
+            <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, fontFamily: "'Quicksand', sans-serif", background: 'linear-gradient(135deg, #fce4ec, #f3e5f5)', color: '#ad5c7a', marginBottom: 12, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+              {producto.categoria}
+            </span>
+          )}
+          
+          <h2 style={{ margin: '0 0 12px', fontSize: 24, fontWeight: 800, fontFamily: "'Quicksand', sans-serif", color: '#3d2c3e', lineHeight: 1.2 }}>
+            {producto.nombre}
+          </h2>
+
+          <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Quicksand', sans-serif", color: '#c0547a', letterSpacing: -0.5, marginBottom: 16 }}>
+            {formatPrice(producto.precio)}
+          </div>
+
+          {producto.descripcion && (
+            <div style={{ marginBottom: 20 }}>
+              <h4 style={{ margin: '0 0 8px', fontSize: 14, color: '#3d2c3e', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 700 }}>Descripción</h4>
+              <p style={{ margin: 0, fontSize: 15, fontFamily: "'Quicksand', sans-serif", color: '#6a5a6b', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                {producto.descripcion}
+              </p>
+            </div>
+          )}
+
+          {producto.ingredientes && (
+            <div style={{ marginBottom: 24, padding: '16px', background: '#FDF2F8', borderRadius: 16 }}>
+              <h4 style={{ margin: '0 0 8px', fontSize: 14, color: '#ad5c7a', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Sparkles size={16} /> Incluye / Ingredientes
+              </h4>
+              <p style={{ margin: 0, fontSize: 14.5, fontFamily: "'Quicksand', sans-serif", color: '#8a7b8e', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                {producto.ingredientes}
+              </p>
+            </div>
+          )}
+
+          <a href={buildWhatsAppUrl(config, producto.nombre)} target="_blank" rel="noopener noreferrer" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%', padding: '16px', borderRadius: 30,
+              background: 'linear-gradient(135deg, #25D366, #128C7E)', color: '#fff', fontSize: 16, fontWeight: 700,
+              fontFamily: "'Quicksand', sans-serif", textDecoration: 'none', border: 'none', cursor: 'pointer',
+              transition: 'all 0.25s ease', boxShadow: '0 6px 20px rgba(37, 211, 102, 0.35)'
+            }}>
+            <MessageCircle size={22} /> Pedir ahora
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProductCard = ({ producto, config, index, onClick }) => {
   const [imgError, setImgError] = useState(false);
   const [hovered, setHovered] = useState(false);
 
@@ -64,6 +187,7 @@ const ProductCard = ({ producto, config, index }) => {
         cursor: 'pointer',
         animation: `fadeInUp 0.5s ease ${index * 0.07}s both`,
       }}
+      onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -243,6 +367,7 @@ const PublicCatalog = ({
   loading = false,
 }) => {
   const [activeCategory, setActiveCategory] = useState('Todos');
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const config = {
     whatsapp: catalogConfig.whatsapp || '3106305616',
@@ -300,6 +425,14 @@ const PublicCatalog = ({
           25% { transform: scale(1.15); }
           50% { transform: scale(1); }
           75% { transform: scale(1.1); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(40px) scale(0.95); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
 
@@ -589,6 +722,7 @@ const PublicCatalog = ({
                   producto={producto}
                   config={config}
                   index={idx}
+                  onClick={() => setSelectedProduct(producto)}
                 />
               ))}
             </div>
@@ -650,6 +784,15 @@ const PublicCatalog = ({
         >
           <MessageCircle size={28} color="#fff" fill="#fff" />
         </a>
+
+        {/* Modal de Detalles */}
+        {selectedProduct && (
+          <ProductModal 
+            producto={selectedProduct} 
+            config={config} 
+            onClose={() => setSelectedProduct(null)} 
+          />
+        )}
       </div>
     </>
   );
