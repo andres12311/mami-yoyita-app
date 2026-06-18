@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Heart, ShoppingBag, MessageCircle, Loader2, ChefHat, Sparkles } from 'lucide-react';
 
-const CATEGORIES = ['Todos', 'Desayunos', 'Tortas y Cupcakes', 'Extra'];
+const CATEGORIES = ['Todos', 'Desayunos', 'Tortas y Cupcakes', 'Mama 2026 💝', 'Extra'];
 
 const formatPrice = (precio) => {
   return new Intl.NumberFormat('es-CO', {
@@ -212,7 +212,9 @@ const PublicCatalog = ({
   };
 
   const activeProducts = useMemo(
-    () => productos.filter((p) => p.activo === true),
+    () => [...productos]
+      .filter((p) => p.activo !== false)
+      .sort((a, b) => (a.orden || 0) - (b.orden || 0)),
     [productos]
   );
 

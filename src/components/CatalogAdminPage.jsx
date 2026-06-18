@@ -10,9 +10,9 @@ import {
   saveCatalogConfig
 } from '../services/catalogService';
 
-const CATEGORIAS = ['Desayunos', 'Tortas y Cupcakes', 'Extra'];
+const CATEGORIAS = ['Desayunos', 'Tortas y Cupcakes', 'Mama 2026 💝', 'Extra'];
 
-const emptyProduct = () => ({
+const emptyProduct = (currentLength) => ({
   id: 'prod-' + Date.now(),
   nombre: '',
   descripcion: '',
@@ -20,7 +20,7 @@ const emptyProduct = () => ({
   precio: 0,
   categoria: 'Desayunos',
   imagen: '',
-  orden: 0,
+  orden: currentLength + 1,
   activo: true
 });
 
@@ -54,9 +54,8 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
     });
   }, [catalogConfig]);
 
-  // ── Handlers ───────────────────────────────────────────
   const handleAddNew = () => {
-    setEditProduct(emptyProduct());
+    setEditProduct(emptyProduct(productos.length));
     setImagePreview(null);
     setImageFile(null);
     setView('form');
