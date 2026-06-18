@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Save } from 'lucide-react';
 
-const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
+const EditOrderModal = ({ editingPedido, setEditingPedido, onSave, catalogProducts = [] }) => {
   if (!editingPedido) return null;
 
   const handleChange = (field, value) => {
@@ -26,6 +26,21 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
     onSave();
   };
 
+  const handleCatalogSelect = (e) => {
+    const selectedId = e.target.value;
+    if (!selectedId) return;
+    
+    const product = catalogProducts.find(p => p.id === selectedId);
+    if (product) {
+      setEditingPedido({
+        ...editingPedido,
+        Pedido: product.nombre,
+        ingredientesProduccion: product.ingredientes || '',
+        precioDesayuno: product.precio || 0
+      });
+    }
+  };
+
   return (
     <div className="modal-blur no-print">
       <div className="modal-lux">
@@ -45,6 +60,26 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave }) => {
               placeholder="Nombre completo del cliente"
             />
           </div>
+
+          {/* Product Selection from Catalog */}
+          {catalogProducts.length > 0 && (
+            <div className="info-group" style={{ background: '#FFFBFD', padding: '12px', borderRadius: '12px', border: '1.5px dashed #F3E8FF' }}>
+              <label className="info-label" style={{ color: '#EC4899' }}>🛍️ Seleccionar producto del catálogo (Auto-completar)</label>
+              <select 
+                className="premium-input"
+                onChange={handleCatalogSelect}
+                defaultValue=""
+                style={{ cursor: 'pointer' }}
+              >
+                <option value="" disabled>-- Elige un producto para auto-completar --</option>
+                {catalogProducts.filter(p => p.activo !== false).map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.nombre} - ${new Intl.NumberFormat('es-CO').format(p.precio)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
             <div className="info-group">

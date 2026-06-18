@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Heart, ShoppingBag, MessageCircle, Loader2, ChefHat, Sparkles } from 'lucide-react';
 
-const CATEGORIES = ['Todos', 'Desayunos', 'Tortas', 'Saludables', 'Especiales'];
+const CATEGORIES = ['Todos', 'Desayunos', 'Tortas y Cupcakes', 'Extra'];
 
 const formatPrice = (precio) => {
   return new Intl.NumberFormat('es-CO', {

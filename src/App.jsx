@@ -205,7 +205,8 @@ function App() {
       <EditOrderModal 
         editingPedido={editingPedido} 
         setEditingPedido={setEditingPedido} 
-        onSave={() => { savePedidoCloud(editingPedido); setEditingPedido(null); }} 
+        onSave={() => { savePedidoCloud(editingPedido); setEditingPedido(null); }}
+        catalogProducts={catalogProducts}
       />
 
       <AccountingModal 

@@ -10,12 +10,13 @@ import {
   saveCatalogConfig
 } from '../../services/catalogService';
 
-const CATEGORIAS = ['Desayunos', 'Tortas', 'Saludables', 'Especiales'];
+const CATEGORIAS = ['Desayunos', 'Tortas y Cupcakes', 'Extra'];
 
 const emptyProduct = () => ({
   id: 'prod-' + Date.now(),
   nombre: '',
   descripcion: '',
+  ingredientes: '',
   precio: 0,
   categoria: 'Desayunos',
   imagen: '',
@@ -26,34 +27,33 @@ const emptyProduct = () => ({
 const formatCOP = (precio) => new Intl.NumberFormat('es-CO').format(precio);
 
 export default function CatalogAdminModal({ isOpen, onClose, productos = [], catalogConfig = {} }) {
-  // ── State ──────────────────────────────────────────────
-  const [view, setView] = useState('list'); // 'list' | 'form' | 'settings'
+  const [view, setView] = useState('list');
   const [editProduct, setEditProduct] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [deleting, setDeleting] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [configForm, setConfigForm] = useState({
-    whatsapp: catalogConfig.whatsapp || '',
+    whatsapp: catalogConfig.whatsapp || '3106305616',
     nombreTienda: catalogConfig.nombreTienda || 'Delicias de la Mami Yoyita',
-    mensaje: catalogConfig.mensaje || ''
+    mensaje: catalogConfig.mensaje || '¡Hola! Me interesa pedir: '
   });
   const [configSaving, setConfigSaving] = useState(false);
   const [configSaved, setConfigSaved] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const fileRef = useRef(null);
 
-  // Sync config when prop changes
   useEffect(() => {
     setConfigForm({
-      whatsapp: catalogConfig.whatsapp || '',
+      whatsapp: catalogConfig.whatsapp || '3106305616',
       nombreTienda: catalogConfig.nombreTienda || 'Delicias de la Mami Yoyita',
-      mensaje: catalogConfig.mensaje || ''
+      mensaje: catalogConfig.mensaje || '¡Hola! Me interesa pedir: '
     });
   }, [catalogConfig]);
 
-  // Reset view when modal opens
   useEffect(() => {
     if (isOpen) {
       setView('list');
@@ -61,6 +61,7 @@ export default function CatalogAdminModal({ isOpen, onClose, productos = [], cat
       setImagePreview(null);
       setImageFile(null);
       setConfirmDelete(null);
+      setSelectedCategory('Todos');
     }
   }, [isOpen]);
 
@@ -96,14 +97,14 @@ export default function CatalogAdminModal({ isOpen, onClose, productos = [], cat
       if (imageFile) {
         imagenUrl = await uploadProductImage(imageFile, editProduct.id);
       }
-      const productToSave = { ...editProduct, imagen: imagenUrl };
-      await saveCatalogItem(productToSave);
+      await saveCatalogItem({ ...editProduct, imagen: imagenUrl });
       setView('list');
       setEditProduct(null);
       setImagePreview(null);
       setImageFile(null);
     } catch (err) {
       console.error('Error al guardar producto:', err);
+      alert('Error al guardar. Intenta de nuevo.');
     } finally {
       setSaving(false);
     }
@@ -115,7 +116,7 @@ export default function CatalogAdminModal({ isOpen, onClose, productos = [], cat
       await deleteCatalogItem(product.id);
       setConfirmDelete(null);
     } catch (err) {
-      console.error('Error al eliminar producto:', err);
+      console.error('Error al eliminar:', err);
     } finally {
       setDeleting(null);
     }
@@ -125,7 +126,7 @@ export default function CatalogAdminModal({ isOpen, onClose, productos = [], cat
     try {
       await saveCatalogItem({ ...product, activo: !product.activo });
     } catch (err) {
-      console.error('Error al cambiar estado:', err);
+      console.error('Error:', err);
     }
   };
 
@@ -144,465 +145,264 @@ export default function CatalogAdminModal({ isOpen, onClose, productos = [], cat
       setConfigSaved(true);
       setTimeout(() => setConfigSaved(false), 2000);
     } catch (err) {
-      console.error('Error al guardar configuración:', err);
+      console.error('Error config:', err);
     } finally {
       setConfigSaving(false);
     }
   };
 
-  // ── Styles ─────────────────────────────────────────────
-  const styles = {
-    header: {
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      marginBottom: '20px', paddingBottom: '16px',
-      borderBottom: '2px solid #F3E8FF'
-    },
-    title: {
-      fontSize: '1.35rem', fontWeight: '700', color: '#FF8DA1',
-      display: 'flex', alignItems: 'center', gap: '10px'
-    },
-    closeBtn: {
-      background: 'none', border: 'none', cursor: 'pointer',
-      color: '#999', padding: '4px', borderRadius: '8px',
-      transition: 'all 0.2s'
-    },
-    toolbar: {
-      display: 'flex', gap: '8px', flexWrap: 'wrap',
-      marginBottom: '18px', alignItems: 'center'
-    },
-    btnPrimary: {
-      display: 'inline-flex', alignItems: 'center', gap: '6px',
-      padding: '8px 16px', borderRadius: '10px', border: 'none',
-      background: 'linear-gradient(135deg, #FF8DA1, #F472B6)',
-      color: '#fff', fontWeight: '600', fontSize: '0.85rem',
-      cursor: 'pointer', transition: 'all 0.2s',
-      boxShadow: '0 2px 8px rgba(255,141,161,0.3)'
-    },
-    btnSecondary: {
-      display: 'inline-flex', alignItems: 'center', gap: '6px',
-      padding: '8px 16px', borderRadius: '10px',
-      border: '1.5px solid #F3E8FF', background: '#FEFCFF',
-      color: '#7C3AED', fontWeight: '600', fontSize: '0.85rem',
-      cursor: 'pointer', transition: 'all 0.2s'
-    },
-    btnDanger: {
-      display: 'inline-flex', alignItems: 'center', gap: '4px',
-      padding: '6px 12px', borderRadius: '8px', border: 'none',
-      background: '#FEE2E2', color: '#DC2626', fontWeight: '600',
-      fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s'
-    },
-    btnGhost: {
-      display: 'inline-flex', alignItems: 'center', gap: '4px',
-      padding: '6px 12px', borderRadius: '8px', border: 'none',
-      background: 'transparent', color: '#FF8DA1', fontWeight: '600',
-      fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s'
-    },
-    productCard: {
-      display: 'flex', alignItems: 'center', gap: '12px',
-      padding: '12px 14px', borderRadius: '14px',
-      background: '#FFFBFD', border: '1.5px solid #F3E8FF',
-      marginBottom: '10px', transition: 'all 0.2s',
-      position: 'relative'
-    },
-    thumbnail: {
-      width: '52px', height: '52px', borderRadius: '10px',
-      objectFit: 'cover', border: '2px solid #F3E8FF',
-      background: '#FDF2F8', flexShrink: 0
-    },
-    thumbPlaceholder: {
-      width: '52px', height: '52px', borderRadius: '10px',
-      background: 'linear-gradient(135deg, #FDF2F8, #F3E8FF)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      flexShrink: 0
-    },
-    productInfo: {
-      flex: 1, minWidth: 0
-    },
-    productName: {
-      fontWeight: '700', fontSize: '0.95rem', color: '#1F2937',
-      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-    },
-    productMeta: {
-      display: 'flex', gap: '10px', alignItems: 'center',
-      fontSize: '0.8rem', color: '#6B7280', marginTop: '2px'
-    },
-    badge: {
-      padding: '2px 8px', borderRadius: '6px', fontSize: '0.72rem',
-      fontWeight: '600', background: '#F3E8FF', color: '#7C3AED'
-    },
-    price: {
-      fontWeight: '700', color: '#FF8DA1', fontSize: '0.9rem'
-    },
-    actions: {
-      display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0
-    },
-    iconBtn: {
-      width: '34px', height: '34px', borderRadius: '8px',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-      background: 'transparent'
-    },
-    formGroup: {
-      marginBottom: '16px'
-    },
-    formRow: {
-      display: 'grid', gridTemplateColumns: '1fr 1fr',
-      gap: '14px'
-    },
-    imageUpload: {
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      gap: '10px', padding: '20px', borderRadius: '14px',
-      border: '2px dashed #F3E8FF', background: '#FFFBFD',
-      cursor: 'pointer', transition: 'all 0.2s', textAlign: 'center'
-    },
-    imagePreview: {
-      width: '120px', height: '120px', borderRadius: '12px',
-      objectFit: 'cover', border: '3px solid #F3E8FF'
-    },
-    section: {
-      background: '#FFFBFD', borderRadius: '14px',
-      border: '1.5px solid #F3E8FF', padding: '18px',
-      marginBottom: '16px'
-    },
-    sectionTitle: {
-      fontSize: '0.95rem', fontWeight: '700', color: '#7C3AED',
-      display: 'flex', alignItems: 'center', gap: '8px',
-      marginBottom: '14px'
-    },
-    emptyState: {
-      textAlign: 'center', padding: '40px 20px', color: '#9CA3AF'
-    },
-    confirmOverlay: {
-      position: 'absolute', inset: 0, borderRadius: '14px',
-      background: 'rgba(255,255,255,0.95)', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', gap: '10px',
-      zIndex: 2
-    },
-    inactiveOverlay: {
-      opacity: 0.5
-    }
-  };
+  // ── Filter products by category ────────────────────────
+  const filteredProducts = selectedCategory === 'Todos'
+    ? productos
+    : productos.filter(p => p.categoria === selectedCategory);
 
-  // ── Render helpers ─────────────────────────────────────
-  const renderSettingsSection = () => (
-    <div style={styles.section}>
-      <div style={styles.sectionTitle}>
-        <Settings size={16} />
-        Configuración del Catálogo
+  const groupedProducts = {};
+  CATEGORIAS.forEach(cat => {
+    const items = productos.filter(p => p.categoria === cat).sort((a, b) => (a.orden || 0) - (b.orden || 0));
+    if (items.length > 0) groupedProducts[cat] = items;
+  });
+  // Products without matching category
+  const uncategorized = productos.filter(p => !CATEGORIAS.includes(p.categoria));
+  if (uncategorized.length > 0) groupedProducts['Otros'] = uncategorized;
+
+  // ── Render ─────────────────────────────────────────────
+  if (!isOpen) return null;
+
+  const renderProductCard = (product) => (
+    <div key={product.id} style={{
+      display: 'flex', alignItems: 'center', gap: '12px',
+      padding: '10px 14px', borderRadius: '12px',
+      background: product.activo === false ? '#f9f9f9' : '#fff',
+      border: '1.5px solid #F3E8FF',
+      opacity: product.activo === false ? 0.5 : 1,
+      transition: 'all 0.2s', position: 'relative'
+    }}>
+      {product.imagen ? (
+        <img src={product.imagen} alt="" style={{
+          width: '48px', height: '48px', borderRadius: '10px',
+          objectFit: 'cover', border: '2px solid #F3E8FF', flexShrink: 0
+        }} />
+      ) : (
+        <div style={{
+          width: '48px', height: '48px', borderRadius: '10px',
+          background: 'linear-gradient(135deg, #FDF2F8, #F3E8FF)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+        }}><Image size={18} color="#D1B2F5" /></div>
+      )}
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#1F2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {product.nombre}
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.78rem', color: '#6B7280', marginTop: '2px' }}>
+          <span style={{ fontWeight: '700', color: '#FF8DA1' }}>${formatCOP(product.precio)}</span>
+          {product.ingredientes && (
+            <span style={{ color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+              🧾 {product.ingredientes}
+            </span>
+          )}
+        </div>
       </div>
-      <div className="info-group" style={{ marginBottom: '12px' }}>
-        <label className="info-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <MessageCircle size={14} /> WhatsApp
-        </label>
-        <input
-          className="premium-input"
-          type="text"
-          placeholder="Ej: 573001234567"
-          value={configForm.whatsapp}
-          onChange={e => setConfigForm({ ...configForm, whatsapp: e.target.value })}
-        />
-      </div>
-      <div className="info-group" style={{ marginBottom: '12px' }}>
-        <label className="info-label">Mensaje de saludo</label>
-        <textarea
-          className="premium-input"
-          rows={2}
-          placeholder="Ej: ¡Hola! Me gustaría hacer un pedido..."
-          value={configForm.mensaje}
-          onChange={e => setConfigForm({ ...configForm, mensaje: e.target.value })}
-          style={{ resize: 'vertical', minHeight: '48px' }}
-        />
-      </div>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <button
-          style={styles.btnPrimary}
-          onClick={handleSaveConfig}
-          disabled={configSaving}
-        >
-          {configSaving ? <Loader2 size={14} className="spin" /> : configSaved ? <Check size={14} /> : <Save size={14} />}
-          {configSaving ? 'Guardando...' : configSaved ? '¡Guardado!' : 'Guardar Config'}
+
+      <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+        <button onClick={() => handleToggleActive(product)} title={product.activo !== false ? 'Desactivar' : 'Activar'}
+          style={{ width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', background: 'transparent', color: product.activo !== false ? '#10B981' : '#9CA3AF' }}>
+          {product.activo !== false ? <Eye size={15} /> : <EyeOff size={15} />}
         </button>
-        <button style={styles.btnSecondary} onClick={handleCopyLink}>
-          {copied ? <Check size={14} /> : <Link size={14} />}
-          {copied ? '¡Copiado!' : 'Copiar enlace catálogo'}
+        <button onClick={() => handleEdit(product)} title="Editar"
+          style={{ width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', background: 'transparent', color: '#7C3AED' }}>
+          <Edit3 size={15} />
+        </button>
+        <button onClick={() => setConfirmDelete(product.id)} title="Eliminar"
+          style={{ width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', background: 'transparent', color: '#EF4444' }}>
+          <Trash2 size={15} />
         </button>
       </div>
+
+      {confirmDelete === product.id && (
+        <div style={{
+          position: 'absolute', inset: 0, borderRadius: '12px',
+          background: 'rgba(255,255,255,0.97)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', gap: '10px', zIndex: 2
+        }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: '600', color: '#DC2626' }}>¿Eliminar?</span>
+          <button onClick={() => handleDelete(product)} disabled={deleting === product.id}
+            style={{ padding: '5px 12px', borderRadius: '8px', border: 'none', background: '#FEE2E2', color: '#DC2626', fontWeight: '600', fontSize: '0.78rem', cursor: 'pointer' }}>
+            {deleting === product.id ? 'Eliminando...' : 'Sí'}
+          </button>
+          <button onClick={() => setConfirmDelete(null)}
+            style={{ padding: '5px 12px', borderRadius: '8px', border: 'none', background: 'transparent', color: '#6B7280', fontWeight: '600', fontSize: '0.78rem', cursor: 'pointer' }}>
+            No
+          </button>
+        </div>
+      )}
     </div>
   );
 
-  const renderProductList = () => (
-    <>
-      {renderSettingsSection()}
-
-      <div style={styles.toolbar}>
-        <button style={styles.btnPrimary} onClick={handleAddNew}>
-          <Plus size={16} /> Agregar Producto
-        </button>
-        <span style={{ fontSize: '0.82rem', color: '#9CA3AF', marginLeft: 'auto' }}>
-          {productos.length} producto{productos.length !== 1 ? 's' : ''}
-        </span>
-      </div>
-
-      {productos.length === 0 ? (
-        <div style={styles.emptyState}>
-          <Package size={40} strokeWidth={1.2} style={{ marginBottom: '10px', color: '#D1D5DB' }} />
-          <p style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '4px' }}>Sin productos aún</p>
-          <p style={{ fontSize: '0.85rem' }}>Agrega tu primer producto al catálogo</p>
-        </div>
-      ) : (
-        [...productos]
-          .sort((a, b) => (a.orden || 0) - (b.orden || 0))
-          .map(product => (
-            <div
-              key={product.id}
-              style={{
-                ...styles.productCard,
-                ...(product.activo === false ? styles.inactiveOverlay : {})
-              }}
-            >
-              {/* Thumbnail */}
-              {product.imagen ? (
-                <img src={product.imagen} alt={product.nombre} style={styles.thumbnail} />
-              ) : (
-                <div style={styles.thumbPlaceholder}>
-                  <Image size={20} color="#D1B2F5" />
-                </div>
-              )}
-
-              {/* Info */}
-              <div style={styles.productInfo}>
-                <div style={styles.productName}>{product.nombre}</div>
-                <div style={styles.productMeta}>
-                  <span style={styles.price}>${formatCOP(product.precio)}</span>
-                  <span style={styles.badge}>{product.categoria}</span>
-                  {product.orden > 0 && (
-                    <span style={{ fontSize: '0.72rem', color: '#B0B0B0' }}>#{product.orden}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div style={styles.actions}>
-                <button
-                  style={{ ...styles.iconBtn, color: product.activo !== false ? '#10B981' : '#9CA3AF' }}
-                  onClick={() => handleToggleActive(product)}
-                  title={product.activo !== false ? 'Desactivar' : 'Activar'}
-                >
-                  {product.activo !== false ? <Eye size={16} /> : <EyeOff size={16} />}
-                </button>
-                <button
-                  style={{ ...styles.iconBtn, color: '#7C3AED' }}
-                  onClick={() => handleEdit(product)}
-                  title="Editar"
-                >
-                  <Edit3 size={16} />
-                </button>
-                <button
-                  style={{ ...styles.iconBtn, color: '#EF4444' }}
-                  onClick={() => setConfirmDelete(product.id)}
-                  title="Eliminar"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-
-              {/* Delete confirmation overlay */}
-              {confirmDelete === product.id && (
-                <div style={styles.confirmOverlay}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#DC2626' }}>
-                    ¿Eliminar este producto?
-                  </span>
-                  <button
-                    style={styles.btnDanger}
-                    onClick={() => handleDelete(product)}
-                    disabled={deleting === product.id}
-                  >
-                    {deleting === product.id ? <Loader2 size={13} className="spin" /> : <Trash2 size={13} />}
-                    {deleting === product.id ? 'Eliminando...' : 'Sí, eliminar'}
-                  </button>
-                  <button
-                    style={{ ...styles.btnGhost, color: '#6B7280' }}
-                    onClick={() => setConfirmDelete(null)}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              )}
-            </div>
-          ))
-      )}
-    </>
-  );
-
-  const renderForm = () => (
-    <>
-      <button
-        style={{ ...styles.btnGhost, marginBottom: '14px', color: '#7C3AED' }}
-        onClick={() => { setView('list'); setEditProduct(null); }}
-      >
-        ← Volver a la lista
-      </button>
-
-      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1F2937', marginBottom: '18px' }}>
-        {editProduct?.nombre ? `Editar: ${editProduct.nombre}` : 'Nuevo Producto'}
-      </h3>
-
-      {/* Image upload */}
-      <div style={{ marginBottom: '18px' }}>
-        <div
-          style={styles.imageUpload}
-          onClick={() => fileRef.current?.click()}
-        >
-          {imagePreview ? (
-            <img src={imagePreview} alt="Preview" style={styles.imagePreview} />
-          ) : (
-            <>
-              <Image size={32} color="#D1B2F5" />
-              <span style={{ fontSize: '0.85rem', color: '#9CA3AF', fontWeight: '500' }}>
-                Toca para subir imagen
-              </span>
-            </>
-          )}
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleImageChange}
-          />
-        </div>
-      </div>
-
-      {/* Nombre */}
-      <div className="info-group" style={styles.formGroup}>
-        <label className="info-label">Nombre del producto *</label>
-        <input
-          className="premium-input"
-          type="text"
-          placeholder="Ej: Torta de chocolate"
-          value={editProduct?.nombre || ''}
-          onChange={e => setEditProduct({ ...editProduct, nombre: e.target.value })}
-        />
-      </div>
-
-      {/* Descripción */}
-      <div className="info-group" style={styles.formGroup}>
-        <label className="info-label">Descripción</label>
-        <textarea
-          className="premium-input"
-          rows={3}
-          placeholder="Descripción del producto..."
-          value={editProduct?.descripcion || ''}
-          onChange={e => setEditProduct({ ...editProduct, descripcion: e.target.value })}
-          style={{ resize: 'vertical', minHeight: '60px' }}
-        />
-      </div>
-
-      {/* Precio + Categoría */}
-      <div style={styles.formRow}>
-        <div className="info-group" style={styles.formGroup}>
-          <label className="info-label">Precio (COP)</label>
-          <input
-            className="premium-input"
-            type="number"
-            min="0"
-            placeholder="0"
-            value={editProduct?.precio || ''}
-            onChange={e => setEditProduct({ ...editProduct, precio: Number(e.target.value) })}
-          />
-        </div>
-        <div className="info-group" style={styles.formGroup}>
-          <label className="info-label">Categoría</label>
-          <select
-            className="premium-input"
-            value={editProduct?.categoria || 'Desayunos'}
-            onChange={e => setEditProduct({ ...editProduct, categoria: e.target.value })}
-          >
-            {CATEGORIAS.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Orden + Activo */}
-      <div style={styles.formRow}>
-        <div className="info-group" style={styles.formGroup}>
-          <label className="info-label">Orden</label>
-          <input
-            className="premium-input"
-            type="number"
-            min="0"
-            placeholder="0"
-            value={editProduct?.orden || ''}
-            onChange={e => setEditProduct({ ...editProduct, orden: Number(e.target.value) })}
-          />
-        </div>
-        <div className="info-group" style={{ ...styles.formGroup, display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '24px' }}>
-          <label style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            cursor: 'pointer', fontWeight: '600', fontSize: '0.88rem', color: '#374151'
-          }}>
-            <input
-              type="checkbox"
-              checked={editProduct?.activo !== false}
-              onChange={e => setEditProduct({ ...editProduct, activo: e.target.checked })}
-              style={{ width: '18px', height: '18px', accentColor: '#FF8DA1' }}
-            />
-            Producto activo
-          </label>
-        </div>
-      </div>
-
-      {/* Save button */}
-      <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-        <button
-          className="btn-main"
-          style={{
-            ...styles.btnPrimary,
-            padding: '12px 28px', fontSize: '0.95rem',
-            opacity: saving || !editProduct?.nombre?.trim() ? 0.6 : 1,
-            pointerEvents: saving ? 'none' : 'auto'
-          }}
-          onClick={handleSave}
-          disabled={saving || !editProduct?.nombre?.trim()}
-        >
-          {saving ? <Loader2 size={16} className="spin" /> : <Save size={16} />}
-          {saving ? 'Guardando...' : 'Guardar Producto'}
-        </button>
-        <button
-          style={{ ...styles.btnSecondary, padding: '12px 20px' }}
-          onClick={() => { setView('list'); setEditProduct(null); }}
-        >
-          Cancelar
-        </button>
-      </div>
-    </>
-  );
-
-  // ── Main render ────────────────────────────────────────
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-lux"
-        onClick={e => e.stopPropagation()}
-        style={{ maxWidth: '800px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}
-      >
+    <div className="modal-blur no-print">
+      <div className="modal-lux" style={{ maxWidth: '800px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}
+        onClick={e => e.stopPropagation()}>
+        
         {/* Header */}
-        <div style={styles.header}>
-          <div style={styles.title}>
-            <Package size={22} />
-            Administrar Catálogo
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '14px', borderBottom: '2px solid #F3E8FF' }}>
+          <div style={{ fontSize: '1.3rem', fontWeight: '700', color: '#FF8DA1', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Package size={22} /> Catálogo de Productos
           </div>
-          <button style={styles.closeBtn} onClick={onClose}>
-            <X size={22} />
-          </button>
+          <button className="btn-icon" onClick={onClose}><X /></button>
         </div>
 
-        {/* Content */}
-        {view === 'form' ? renderForm() : renderProductList()}
+        {view === 'form' ? (
+          /* ══════════════ FORM VIEW ══════════════ */
+          <>
+            <button onClick={() => { setView('list'); setEditProduct(null); }}
+              style={{ background: 'none', border: 'none', color: '#7C3AED', fontWeight: '600', fontSize: '0.88rem', cursor: 'pointer', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ← Volver
+            </button>
+
+            <h3 style={{ fontSize: '1.05rem', fontWeight: '700', marginBottom: '16px' }}>
+              {editProduct?.nombre ? `Editar: ${editProduct.nombre}` : 'Nuevo Producto'}
+            </h3>
+
+            {/* Image */}
+            <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '20px', borderRadius: '14px', border: '2px dashed #F3E8FF', background: '#FFFBFD', cursor: 'pointer' }}
+              onClick={() => fileRef.current?.click()}>
+              {imagePreview ? (
+                <img src={imagePreview} alt="Preview" style={{ width: '120px', height: '120px', borderRadius: '12px', objectFit: 'cover', border: '3px solid #F3E8FF' }} />
+              ) : (
+                <>
+                  <Image size={32} color="#D1B2F5" />
+                  <span style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>Toca para subir imagen</span>
+                </>
+              )}
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
+            </div>
+
+            <div className="info-group" style={{ marginBottom: '14px' }}>
+              <label className="info-label">Nombre del producto *</label>
+              <input className="premium-input" value={editProduct?.nombre || ''} onChange={e => setEditProduct({ ...editProduct, nombre: e.target.value })} placeholder="Ej: Desayuno con waffles" />
+            </div>
+
+            <div className="info-group" style={{ marginBottom: '14px' }}>
+              <label className="info-label">Descripción</label>
+              <textarea className="premium-input" rows={2} style={{ resize: 'vertical', minHeight: '50px' }} value={editProduct?.descripcion || ''} onChange={e => setEditProduct({ ...editProduct, descripcion: e.target.value })} placeholder="Descripción corta del producto" />
+            </div>
+
+            <div className="info-group" style={{ marginBottom: '14px' }}>
+              <label className="info-label">🧾 Ingredientes (se auto-llenan en el pedido)</label>
+              <textarea className="premium-input" rows={2} style={{ resize: 'vertical', minHeight: '50px' }} value={editProduct?.ingredientes || ''} onChange={e => setEditProduct({ ...editProduct, ingredientes: e.target.value })} placeholder="Ej: 1 lb fresas, 3 huevos, 200g harina, crema chantilly" />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+              <div className="info-group">
+                <label className="info-label">Precio (COP)</label>
+                <input className="premium-input" type="number" min="0" value={editProduct?.precio || ''} onChange={e => setEditProduct({ ...editProduct, precio: Number(e.target.value) })} />
+              </div>
+              <div className="info-group">
+                <label className="info-label">Categoría</label>
+                <select className="premium-input" value={editProduct?.categoria || 'Desayunos'} onChange={e => setEditProduct({ ...editProduct, categoria: e.target.value })}>
+                  {CATEGORIAS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+              <div className="info-group">
+                <label className="info-label">Orden (posición)</label>
+                <input className="premium-input" type="number" min="0" value={editProduct?.orden || ''} onChange={e => setEditProduct({ ...editProduct, orden: Number(e.target.value) })} />
+              </div>
+              <div className="info-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '24px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '0.88rem' }}>
+                  <input type="checkbox" checked={editProduct?.activo !== false} onChange={e => setEditProduct({ ...editProduct, activo: e.target.checked })} style={{ width: '18px', height: '18px', accentColor: '#FF8DA1' }} />
+                  Activo
+                </label>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+              <button className="btn-main" style={{ flex: 1, justifyContent: 'center', opacity: saving ? 0.6 : 1 }} onClick={handleSave} disabled={saving || !editProduct?.nombre?.trim()}>
+                {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                {saving ? 'Guardando...' : 'Guardar Producto'}
+              </button>
+              <button className="btn-icon" style={{ width: '50px', height: '50px' }} onClick={() => { setView('list'); setEditProduct(null); }}>
+                <X size={22} />
+              </button>
+            </div>
+          </>
+        ) : (
+          /* ══════════════ LIST VIEW (por secciones) ══════════════ */
+          <>
+            {/* Toolbar */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px', alignItems: 'center' }}>
+              <button className="btn-main" onClick={handleAddNew} style={{ fontSize: '0.85rem' }}>
+                <Plus size={16} /> Agregar Producto
+              </button>
+              <button className="btn-main" style={{ background: '#7C3AED', fontSize: '0.85rem' }} onClick={() => setShowSettings(!showSettings)}>
+                <Settings size={16} /> Config
+              </button>
+              <button className="btn-main" style={{ background: '#10B981', fontSize: '0.85rem' }} onClick={handleCopyLink}>
+                {copied ? <Check size={16} /> : <Link size={16} />}
+                {copied ? '¡Copiado!' : 'Link Catálogo'}
+              </button>
+              <span style={{ fontSize: '0.8rem', color: '#9CA3AF', marginLeft: 'auto' }}>
+                {productos.length} producto{productos.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+
+            {/* Settings (collapsible) */}
+            {showSettings && (
+              <div style={{ background: '#FFFBFD', borderRadius: '14px', border: '1.5px solid #F3E8FF', padding: '16px', marginBottom: '16px' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#7C3AED', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Settings size={14} /> Configuración
+                </div>
+                <div className="info-group" style={{ marginBottom: '10px' }}>
+                  <label className="info-label"><MessageCircle size={12} /> WhatsApp</label>
+                  <input className="premium-input" value={configForm.whatsapp} onChange={e => setConfigForm({ ...configForm, whatsapp: e.target.value })} placeholder="3101234567" />
+                </div>
+                <div className="info-group" style={{ marginBottom: '10px' }}>
+                  <label className="info-label">Mensaje de saludo</label>
+                  <input className="premium-input" value={configForm.mensaje} onChange={e => setConfigForm({ ...configForm, mensaje: e.target.value })} placeholder="¡Hola! Me interesa pedir:" />
+                </div>
+                <button className="btn-main" style={{ fontSize: '0.82rem' }} onClick={handleSaveConfig} disabled={configSaving}>
+                  {configSaving ? <Loader2 size={14} className="animate-spin" /> : configSaved ? <Check size={14} /> : <Save size={14} />}
+                  {configSaving ? 'Guardando...' : configSaved ? '¡Guardado!' : 'Guardar Config'}
+                </button>
+              </div>
+            )}
+
+            {/* Products grouped by category */}
+            {productos.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
+                <Package size={40} strokeWidth={1.2} style={{ marginBottom: '10px', color: '#D1D5DB' }} />
+                <p style={{ fontWeight: '600', marginBottom: '4px' }}>Sin productos aún</p>
+                <p style={{ fontSize: '0.85rem' }}>Agrega tu primer producto al catálogo</p>
+              </div>
+            ) : (
+              Object.entries(groupedProducts).map(([categoria, items]) => (
+                <div key={categoria} style={{ marginBottom: '20px' }}>
+                  <div style={{
+                    fontSize: '0.95rem', fontWeight: '800', color: '#7C3AED',
+                    padding: '8px 14px', borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #F3E8FF, #FDF2F8)',
+                    marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px'
+                  }}>
+                    {categoria === 'Desayunos' && '🍳'}
+                    {categoria === 'Tortas y Cupcakes' && '🎂'}
+                    {categoria === 'Extra' && '✨'}
+                    {!['Desayunos', 'Tortas y Cupcakes', 'Extra'].includes(categoria) && '📦'}
+                    {categoria}
+                    <span style={{ fontSize: '0.72rem', color: '#9CA3AF', fontWeight: '500', marginLeft: 'auto' }}>
+                      {items.length}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {items.map(renderProductCard)}
+                  </div>
+                </div>
+              ))
+            )}
+          </>
+        )}
       </div>
     </div>
   );
