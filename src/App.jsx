@@ -21,7 +21,7 @@ import AccountingModal from './components/Modals/AccountingModal';
 import SummaryModal from './components/Modals/SummaryModal';
 import ExpenseModal from './components/Modals/ExpenseModal';
 import DeliveryExportModal from './components/Modals/DeliveryExportModal';
-import CatalogAdminModal from './components/Modals/CatalogAdminModal';
+import CatalogAdminPage from './components/CatalogAdminPage';
 
 // Services
 import { savePedidoCloud, deletePedidoCloud, saveConfigCloud } from './services/firebaseService';
@@ -46,8 +46,6 @@ function App() {
   const [showAccounting, setShowAccounting] = useState(false);
   const [showExpenses, setShowExpenses] = useState(false);
   const [showDeliveryExport, setShowDeliveryExport] = useState(false);
-  const [showCatalogAdmin, setShowCatalogAdmin] = useState(false);
-
   // Hash routing for public catalog
   const [currentRoute, setCurrentRoute] = useState(window.location.hash);
   
@@ -150,6 +148,13 @@ function App() {
     return <PublicCatalog productos={catalogProducts} catalogConfig={catalogConfig} loading={catalogLoading} />;
   }
 
+  // ═══════════════════════════════════════════
+  // ADMIN CATALOG ROUTE
+  // ═══════════════════════════════════════════
+  if (currentRoute === '#/admin-catalogo' && isAuthenticated) {
+    return <CatalogAdminPage productos={catalogProducts} catalogConfig={catalogConfig} />;
+  }
+
   if (authLoading) {
     return (
       <div style={{height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #FFF5F7 0%, #F3E8FF 100%)'}}>
@@ -178,7 +183,6 @@ function App() {
         setSortConfig={setSortConfig}
         onNewPedido={handleNewPedido}
         setShowDeliveryExport={setShowDeliveryExport}
-        setShowCatalogAdmin={setShowCatalogAdmin}
       />
 
       <Dashboard 
@@ -239,13 +243,6 @@ function App() {
         onClose={() => setShowDeliveryExport(false)} 
         displayPedidos={displayPedidos}
         selectedDate={selectedDate}
-      />
-
-      <CatalogAdminModal 
-        isOpen={showCatalogAdmin} 
-        onClose={() => setShowCatalogAdmin(false)} 
-        productos={catalogProducts}
-        catalogConfig={catalogConfig}
       />
     </div>
   );
