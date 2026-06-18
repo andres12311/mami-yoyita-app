@@ -139,17 +139,6 @@ const ProductModal = ({ producto, config, onClose }) => {
             </div>
           )}
 
-          {producto.ingredientes && (
-            <div style={{ marginBottom: 24, padding: '16px', background: '#FDF2F8', borderRadius: 16 }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: 14, color: '#ad5c7a', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Sparkles size={16} /> Incluye / Ingredientes
-              </h4>
-              <p style={{ margin: 0, fontSize: 14.5, fontFamily: "'Quicksand', sans-serif", color: '#8a7b8e', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                {producto.ingredientes}
-              </p>
-            </div>
-          )}
-
           <a href={buildWhatsAppUrl(config, producto.nombre)} target="_blank" rel="noopener noreferrer" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%', padding: '16px', borderRadius: 30,
               background: 'linear-gradient(135deg, #25D366, #128C7E)', color: '#fff', fontSize: 16, fontWeight: 700,
