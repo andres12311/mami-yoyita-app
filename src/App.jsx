@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './styles/main.css';
 import { Loader2 } from 'lucide-react';
 
@@ -6,12 +6,14 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { usePedidos } from './hooks/usePedidos';
 import { useStats } from './hooks/useStats';
+import { useCatalog } from './hooks/useCatalog';
 
 // Components
 import Login from './components/Login';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import OrderCard from './components/OrderCard';
+import PublicCatalog from './components/PublicCatalog';
 
 // Modals
 import EditOrderModal from './components/Modals/EditOrderModal';
@@ -19,6 +21,7 @@ import AccountingModal from './components/Modals/AccountingModal';
 import SummaryModal from './components/Modals/SummaryModal';
 import ExpenseModal from './components/Modals/ExpenseModal';
 import DeliveryExportModal from './components/Modals/DeliveryExportModal';
+import CatalogAdminModal from './components/Modals/CatalogAdminModal';
 
 // Services
 import { savePedidoCloud, deletePedidoCloud, saveConfigCloud } from './services/firebaseService';
@@ -43,6 +46,19 @@ function App() {
   const [showAccounting, setShowAccounting] = useState(false);
   const [showExpenses, setShowExpenses] = useState(false);
   const [showDeliveryExport, setShowDeliveryExport] = useState(false);
+  const [showCatalogAdmin, setShowCatalogAdmin] = useState(false);
+
+  // Hash routing for public catalog
+  const [currentRoute, setCurrentRoute] = useState(window.location.hash);
+  
+  useEffect(() => {
+    const handleHashChange = () => setCurrentRoute(window.location.hash);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Catalog data (always loaded for both public and admin)
+  const { productos: catalogProducts, catalogConfig, loading: catalogLoading } = useCatalog();
 
   // Filter & Sort Logic
   const displayPedidos = useMemo(() => {
@@ -127,6 +143,13 @@ function App() {
     });
   };
 
+  // ═══════════════════════════════════════════
+  // PUBLIC CATALOG ROUTE — no auth needed
+  // ═══════════════════════════════════════════
+  if (currentRoute === '#/catalogo') {
+    return <PublicCatalog productos={catalogProducts} catalogConfig={catalogConfig} loading={catalogLoading} />;
+  }
+
   if (authLoading) {
     return (
       <div style={{height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #FFF5F7 0%, #F3E8FF 100%)'}}>
@@ -155,6 +178,7 @@ function App() {
         setSortConfig={setSortConfig}
         onNewPedido={handleNewPedido}
         setShowDeliveryExport={setShowDeliveryExport}
+        setShowCatalogAdmin={setShowCatalogAdmin}
       />
 
       <Dashboard 
@@ -214,6 +238,13 @@ function App() {
         onClose={() => setShowDeliveryExport(false)} 
         displayPedidos={displayPedidos}
         selectedDate={selectedDate}
+      />
+
+      <CatalogAdminModal 
+        isOpen={showCatalogAdmin} 
+        onClose={() => setShowCatalogAdmin(false)} 
+        productos={catalogProducts}
+        catalogConfig={catalogConfig}
       />
     </div>
   );

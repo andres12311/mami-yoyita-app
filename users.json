@@ -1,0 +1,23 @@
+{"users": [
+{
+  "localId": "lX7xeWTh2Lb5PsVaqwxFlHU8Asf2",
+  "email": "jareytoro11@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "ukTt+eRD8EsqKm8Wc4Q/pOoxm9PZNx4eM49DUJsVwR5h2YR/0WcjLei/MUx67knNZu3k7eWuGpWAxnu7E0h50Q==",
+  "salt": "8zu4nPgImRVznA==",
+  "lastSignedInAt": "1781693199259",
+  "createdAt": "1781693186695",
+  "disabled": false,
+  "providerUserInfo": []
+},
+{
+  "localId": "vdyNhJjlCjcLDQ0eqT9ID8jILOH2",
+  "email": "admin@mamiyoyita.com",
+  "emailVerified": false,
+  "passwordHash": "3Dn1vHagUSzuoUbEqr+KT5DAOKSpw0ydDQKzdzNYwAPa4yYQeeVDUYWOE/25ku9QJZXXs5WUVDxg1at2n/AL0A==",
+  "salt": "GAg2NJe8qmQsVw==",
+  "lastSignedInAt": "1780139884072",
+  "createdAt": "1778511763577",
+  "disabled": false,
+  "providerUserInfo": []
+}]}

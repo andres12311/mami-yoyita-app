@@ -6,9 +6,9 @@ service cloud.firestore {
     // FUNCIONES DE VALIDACIÓN
     // ═══════════════════════════════════════════
     
-    // Verificar que el usuario está autenticado Y es el administrador autorizado
+    // Verificar que el usuario está autenticado
     function isAuthenticated() {
-      return request.auth != null && request.auth.token.email == "admin@mamiyoyita.com";
+      return request.auth != null;
     }
     
     // Validar que un string no sea excesivamente largo (anti-payload bombing)
@@ -56,6 +56,28 @@ service cloud.firestore {
       // Limitar tamaño del documento de configuración
       allow write: if isAuthenticated()
         && request.resource.data.keys().size() <= 400;
+    }
+    
+    // ═══════════════════════════════════════════
+    // CATÁLOGO: lectura pública, escritura admin
+    // ═══════════════════════════════════════════
+    match /catalogo/{productoId} {
+      // Los clientes pueden leer el catálogo SIN autenticación
+      allow read: if true;
+      
+      // Solo usuarios autenticados pueden crear/editar/eliminar productos
+      allow create, update: if isAuthenticated()
+        && request.resource.data.keys().size() <= 15;
+      
+      allow delete: if isAuthenticated();
+    }
+    
+    // ═══════════════════════════════════════════
+    // CONFIG CATÁLOGO: WhatsApp, info tienda
+    // ═══════════════════════════════════════════
+    match /config/catalogo {
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
     
     // ═══════════════════════════════════════════

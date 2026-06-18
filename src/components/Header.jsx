@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Sparkles, BarChart3, TrendingUp, ClipboardList, Plus, Printer, Lock, Search, Share2 } from 'lucide-react';
+import { Heart, Sparkles, BarChart3, TrendingUp, ClipboardList, Plus, Printer, Lock, Search, Share2, ShoppingBag } from 'lucide-react';
 
 const Header = ({ 
   setShowExpenses, 
@@ -14,7 +14,8 @@ const Header = ({
   sortConfig, 
   setSortConfig,
   onNewPedido,
-  setShowDeliveryExport
+  setShowDeliveryExport,
+  setShowCatalogAdmin
 }) => {
   return (
     <div className="main-header no-print">
@@ -35,6 +36,7 @@ const Header = ({
            <button className="btn-main" style={{background: '#8B5CF6'}} onClick={() => setShowAccounting(true)}><TrendingUp size={20} /> Contabilidad</button>
            <button className="btn-main" style={{background: '#717171'}} onClick={() => setShowSummary(true)}><ClipboardList size={20} /> Producción</button>
            <button className="btn-main" style={{background: '#0EA5E9'}} onClick={() => setShowDeliveryExport(true)}><Share2 size={20} /> Domicilios</button>
+           <button className="btn-main" style={{background: '#EC4899'}} onClick={() => setShowCatalogAdmin(true)}><ShoppingBag size={20} /> Catálogo</button>
            <button className="btn-main" onClick={onNewPedido}><Plus size={20} /> Nuevo Pedido</button>
            <button className="btn-icon" onClick={() => window.print()}><Printer size={22} /></button>
            <button className="btn-icon" title="Cerrar Sesión" onClick={logout}><Lock size={18} /></button>
