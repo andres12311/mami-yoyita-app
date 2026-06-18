@@ -50,29 +50,34 @@ const compressImage = (file, maxWidth, quality) => {
     const ctx = canvas.getContext('2d');
     const img = new Image();
     
-    img.onload = () => {
-      let width = img.width;
-      let height = img.height;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
 
-      if (width > maxWidth) {
-        height = (height * maxWidth) / width;
-        width = maxWidth;
-      }
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
 
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
 
-      canvas.toBlob(
-        (blob) => resolve(blob),
-        'image/jpeg',
-        quality
-      );
-    };
+        canvas.toBlob(
+          (blob) => resolve(blob || file),
+          'image/jpeg',
+          quality
+        );
+      };
 
-    img.src = URL.createObjectURL(file);
-  });
-};
+      img.onerror = () => {
+        console.warn("No se pudo comprimir la imagen, usando original.");
+        resolve(file);
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  };
 
 // ═══════════════════════════════════════════
 // CRUD PRODUCTOS
