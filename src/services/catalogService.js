@@ -13,14 +13,22 @@ export const uploadProductImage = async (file, productId) => {
     const compressedFile = await compressImage(file, 800, 0.8);
     
     try {
-      // Intentar subir a Firebase Storage
+      // Intentar subir a Firebase Storage con un timeout de 8 segundos
       const storageRef = ref(storage, `catalogo/${productId}_${Date.now()}`);
-      const snapshot = await uploadBytes(storageRef, compressedFile);
-      const url = await getDownloadURL(snapshot.ref);
+      
+      const uploadPromise = uploadBytes(storageRef, compressedFile).then(async (snapshot) => {
+        return await getDownloadURL(snapshot.ref);
+      });
+
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Firebase Storage timeout')), 8000);
+      });
+
+      const url = await Promise.race([uploadPromise, timeoutPromise]);
       return url;
     } catch (storageErr) {
-      // Si Storage no está habilitado, convertir a base64 como fallback
-      logger.warn("Storage no disponible, usando base64 como fallback");
+      // Si Storage no está habilitado o se cuelga, convertir a base64 como fallback
+      console.warn("Storage falló o tardó mucho, usando base64 como fallback", storageErr);
       return await fileToBase64(compressedFile);
     }
   } catch (err) {
