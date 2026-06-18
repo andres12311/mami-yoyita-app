@@ -92,19 +92,29 @@ export const saveCatalogItem = async (item) => {
   }
 };
 
-export const deleteCatalogItem = async (id, imageUrl) => {
+export const deleteCatalogItem = async (product) => {
   try {
-    // Intentar eliminar imagen de Storage
-    if (imageUrl && imageUrl.includes('firebase')) {
-      try {
-        const imageRef = ref(storage, imageUrl);
-        await deleteObject(imageRef);
-      } catch (e) {
-        // Si falla la eliminación de imagen, no bloqueamos
-        logger.warn("No se pudo eliminar imagen:", e);
+    // Recopilar todas las imágenes a borrar
+    let urlsToDelete = [];
+    if (product.imagenes && product.imagenes.length > 0) {
+      urlsToDelete = [...product.imagenes];
+    } else if (product.imagen) {
+      urlsToDelete = [product.imagen];
+    }
+
+    // Intentar eliminar imágenes de Storage
+    for (const url of urlsToDelete) {
+      if (url && url.includes('firebase')) {
+        try {
+          const imageRef = ref(storage, url);
+          await deleteObject(imageRef);
+        } catch (e) {
+          logger.warn("No se pudo eliminar imagen:", e);
+        }
       }
     }
-    await deleteDoc(doc(db, "catalogo", id));
+    
+    await deleteDoc(doc(db, "catalogo", product.id));
   } catch (err) {
     logger.error("Error eliminando producto:", err);
     throw err;

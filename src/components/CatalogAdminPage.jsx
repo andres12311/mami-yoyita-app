@@ -29,8 +29,8 @@ const formatCOP = (precio) => new Intl.NumberFormat('es-CO').format(precio);
 export default function CatalogAdminPage({ productos = [], catalogConfig = {} }) {
   const [view, setView] = useState('list');
   const [editProduct, setEditProduct] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
+  const [existingImages, setExistingImages] = useState([]);
+  const [imageFiles, setImageFiles] = useState([]);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(null);
@@ -56,40 +56,62 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
 
   const handleAddNew = () => {
     setEditProduct(emptyProduct(productos.length));
-    setImagePreview(null);
-    setImageFile(null);
+    setExistingImages([]);
+    setImageFiles([]);
     setView('form');
   };
 
   const handleEdit = (product) => {
     setEditProduct({ ...product });
-    setImagePreview(product.imagen || null);
-    setImageFile(null);
+    setExistingImages(product.imagenes ? [...product.imagenes] : (product.imagen ? [product.imagen] : []));
+    setImageFiles([]);
     setView('form');
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result);
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    
+    const newFiles = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
+    }));
+    
+    setImageFiles(prev => [...prev, ...newFiles]);
+  };
+
+  const removeExistingImage = (index) => {
+    setExistingImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
     if (!editProduct.nombre.trim()) return;
     setSaving(true);
     try {
-      let imagenUrl = editProduct.imagen;
-      if (imageFile) {
-        imagenUrl = await uploadProductImage(imageFile, editProduct.id);
+      let newUrls = [];
+      if (imageFiles.length > 0) {
+        newUrls = await Promise.all(
+          imageFiles.map(async (imgObj, idx) => {
+            return await uploadProductImage(imgObj.file, `${editProduct.id}_${Date.now()}_${idx}`);
+          })
+        );
       }
-      await saveCatalogItem({ ...editProduct, imagen: imagenUrl });
+      
+      const finalImages = [...existingImages, ...newUrls];
+      
+      await saveCatalogItem({ 
+        ...editProduct, 
+        imagen: finalImages[0] || '',
+        imagenes: finalImages 
+      });
       setView('list');
       setEditProduct(null);
-      setImagePreview(null);
-      setImageFile(null);
+      setExistingImages([]);
+      setImageFiles([]);
     } catch (err) {
       console.error('Error al guardar producto:', err);
       alert('Error al guardar. Intenta de nuevo.');
@@ -101,7 +123,7 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
   const handleDelete = async (product) => {
     setDeleting(product.id);
     try {
-      await deleteCatalogItem(product.id);
+      await deleteCatalogItem(product);
       setConfirmDelete(null);
     } catch (err) {
       console.error('Error al eliminar:', err);
@@ -267,21 +289,33 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
               {editProduct?.nombre ? `Editar: ${editProduct.nombre}` : 'Nuevo Producto'}
             </h3>
 
-            {/* Image */}
-            <div style={{ marginBottom: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '30px', borderRadius: '20px', border: '2px dashed #F3E8FF', background: '#FFFBFD', cursor: 'pointer', transition: 'all 0.2s' }}
-              onClick={() => fileRef.current?.click()}
-              onMouseEnter={e => e.currentTarget.style.background = '#FDF2F8'}
-              onMouseLeave={e => e.currentTarget.style.background = '#FFFBFD'}
-            >
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" style={{ width: '160px', height: '160px', borderRadius: '16px', objectFit: 'cover', border: '4px solid #F3E8FF' }} />
-              ) : (
-                <>
-                  <Image size={48} color="#D1B2F5" />
-                  <span style={{ fontSize: '1rem', color: '#9CA3AF', fontWeight: '600' }}>Toca para subir imagen</span>
-                </>
-              )}
-              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
+            {/* Image Gallery */}
+            <div style={{ marginBottom: '25px' }}>
+              <label className="info-label" style={{ marginBottom: '10px', display: 'block' }}>Imágenes del producto</label>
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                {existingImages.map((imgUrl, idx) => (
+                  <div key={`exist-${idx}`} style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '16px', overflow: 'hidden', border: '3px solid #F3E8FF' }}>
+                    <img src={imgUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button onClick={() => removeExistingImage(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>&times;</button>
+                  </div>
+                ))}
+                {imageFiles.map((imgObj, idx) => (
+                  <div key={`new-${idx}`} style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '16px', overflow: 'hidden', border: '3px solid #F3E8FF' }}>
+                    <img src={imgObj.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button onClick={() => removeNewImage(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>&times;</button>
+                  </div>
+                ))}
+                
+                <div style={{ width: '100px', height: '100px', borderRadius: '16px', border: '2px dashed #D1B2F5', background: '#FFFBFD', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#D1B2F5', transition: 'all 0.2s' }}
+                  onClick={() => fileRef.current?.click()}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FDF2F8'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#FFFBFD'}
+                >
+                  <Plus size={28} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', marginTop: '4px' }}>Añadir</span>
+                </div>
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />
             </div>
 
             <div className="info-group" style={{ marginBottom: '20px' }}>

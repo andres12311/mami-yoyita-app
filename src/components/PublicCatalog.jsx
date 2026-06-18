@@ -45,6 +45,10 @@ const ProductCard = ({ producto, config, index }) => {
   const [imgError, setImgError] = useState(false);
   const [hovered, setHovered] = useState(false);
 
+  const imagenes = producto.imagenes && producto.imagenes.length > 0 
+    ? producto.imagenes 
+    : (producto.imagen ? [producto.imagen] : []);
+
   return (
     <div
       className="catalog-card"
@@ -63,23 +67,58 @@ const ProductCard = ({ producto, config, index }) => {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Image */}
-      {producto.imagen && !imgError ? (
-        <img
-          src={producto.imagen}
-          alt={producto.nombre}
-          loading="lazy"
-          onError={() => setImgError(true)}
-          style={{
+      {/* Image Gallery */}
+      {imagenes.length > 0 && !imgError ? (
+        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '16px 16px 0 0' }}>
+          <div style={{
+            display: 'flex',
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
             width: '100%',
             aspectRatio: '1 / 1',
-            objectFit: 'cover',
-            display: 'block',
-            borderRadius: '16px 16px 0 0',
-            transition: 'transform 0.4s ease',
-            transform: hovered ? 'scale(1.05)' : 'scale(1)',
-          }}
-        />
+          }}>
+            {imagenes.map((imgUrl, i) => (
+              <img
+                key={i}
+                src={imgUrl}
+                alt={`${producto.nombre} ${i + 1}`}
+                loading="lazy"
+                onError={() => setImgError(true)}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  scrollSnapAlign: 'start',
+                  transition: 'transform 0.4s ease',
+                  transform: hovered ? 'scale(1.05)' : 'scale(1)',
+                }}
+              />
+            ))}
+          </div>
+          {/* Indicadores de galería */}
+          {imagenes.length > 1 && (
+            <div style={{
+              position: 'absolute',
+              bottom: '12px',
+              left: '0', right: '0',
+              display: 'flex', justifyContent: 'center', gap: '6px',
+              zIndex: 10,
+              pointerEvents: 'none'
+            }}>
+              {imagenes.map((_, i) => (
+                <div key={i} style={{
+                  width: '6px', height: '6px', borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.9)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.4)'
+                }} />
+              ))}
+            </div>
+          )}
+        </div>
       ) : (
         <ImagePlaceholder />
       )}
