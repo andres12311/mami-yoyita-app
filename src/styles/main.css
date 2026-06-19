@@ -196,3 +196,36 @@ body {
   .status-selector { display: none !important; }
   * { color: black !important; background: transparent !important; }
 }
+
+/* Catalog Grid and Responsive Adjustments */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  
+  .catalog-card h3 {
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .catalog-card .price {
+    font-size: 16px !important;
+  }
+  
+  .catalog-card > div:last-child {
+    padding: 10px 12px 12px !important;
+  }
+  
+  .catalog-card .category-badge {
+    font-size: 9px !important;
+    padding: 2px 8px !important;
+    margin-bottom: 6px !important;
+  }
+}

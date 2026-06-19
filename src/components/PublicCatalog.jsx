@@ -241,6 +241,7 @@ const ProductCard = ({ producto, config, index, onClick }) => {
         {/* Category badge */}
         {producto.categoria && (
           <span
+            className="category-badge"
             style={{
               display: 'inline-block',
               padding: '3px 10px',
@@ -304,6 +305,7 @@ const ProductCard = ({ producto, config, index, onClick }) => {
           }}
         >
           <span
+            className="price"
             style={{
               fontSize: 20,
               fontWeight: 800,
@@ -698,13 +700,7 @@ const PublicCatalog = ({
 
           {/* Product grid */}
           {!loading && filteredProducts.length > 0 && (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: 24,
-              }}
-            >
+            <div className="catalog-grid">
               {filteredProducts.map((producto, idx) => (
                 <ProductCard
                   key={producto.id}
