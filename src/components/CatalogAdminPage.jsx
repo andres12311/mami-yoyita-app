@@ -58,6 +58,28 @@ export default function CatalogAdminPage({ productos = [], catalogConfig = {} })
     });
   }, [catalogConfig]);
 
+  useEffect(() => {
+    // FIX: Auto-remove the corrupted image from the Box Madera product if it exists
+    const fixCorruptedImage = async () => {
+      const boxMadera = productos.find(p => p.id === 'prod-1781825873995');
+      if (boxMadera && boxMadera.imagenes && boxMadera.imagenes.length > 1) {
+        // Remove all except the first one
+        try {
+          await saveCatalogItem({
+            ...boxMadera,
+            imagenes: [boxMadera.imagenes[0]]
+          });
+          console.log('Imagen corrupta eliminada automáticamente.');
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+    if (productos.length > 0) {
+      fixCorruptedImage();
+    }
+  }, [productos]);
+
   const handleAddNew = () => {
     setEditProduct(emptyProduct(productos.length));
     setExistingImages([]);
