@@ -166,20 +166,22 @@ body {
 @media print {
   .no-print { display: none !important; }
   .orders-grid { 
-    display: grid !important; 
-    grid-template-columns: 33% 33% 33% !important; 
-    gap: 15px !important; 
+    display: block !important; 
     width: 100% !important;
   }
   .premium-card { 
-    width: 100% !important;
-    min-width: 0 !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    width: 31% !important;
+    margin: 1% !important;
+    vertical-align: top !important;
     border: 1.5px solid #000 !important; 
     padding: 15px !important; 
     border-radius: 0 !important; 
     box-shadow: none !important; 
     animation: none !important; 
     page-break-inside: avoid !important;
+    break-inside: avoid !important;
     gap: 10px !important;
   }
   .product-title { font-size: 16px !important; margin: 5px 0 !important; }
