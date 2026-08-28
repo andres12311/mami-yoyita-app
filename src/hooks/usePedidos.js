@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { syncToCloud } from '../services/firebaseService';
 import { logger } from '../utils/logger';
 
 export const usePedidos = (isAuthenticated) => {
@@ -15,23 +14,11 @@ export const usePedidos = (isAuthenticated) => {
 
     const unsubscribe = onSnapshot(collection(db, "pedidos"), (snapshot) => {
       const data = snapshot.docs.map(doc => ({ ...doc.data(), internalId: doc.id }));
-      if (data.length > 0) {
-        setPedidos(data);
-      } else {
-        // Intentar restaurar desde localStorage como fallback
-        const saved = localStorage.getItem('pedidos_anual_v2');
-        if (saved) {
-          try {
-            const localData = JSON.parse(saved);
-            setPedidos(localData);
-            syncToCloud(localData);
-          } catch (e) {
-            logger.error("Error parseando datos locales:", e);
-          }
-        }
-        // Si no hay datos locales, empezar con lista vacía
-        // Los pedidos se crean con el botón "Nuevo Pedido"
-      }
+      setPedidos(data);
+      setLoading(false);
+    }, (error) => {
+      // Si hay error de conexión, no borrar los pedidos que ya teníamos cargados
+      logger.error("Error escuchando pedidos:", error);
       setLoading(false);
     });
 

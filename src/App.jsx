@@ -217,7 +217,14 @@ function App() {
       <EditOrderModal 
         editingPedido={editingPedido} 
         setEditingPedido={setEditingPedido} 
-        onSave={() => { savePedidoCloud(editingPedido); setEditingPedido(null); }}
+        onSave={async () => { 
+          try {
+            await savePedidoCloud(editingPedido); 
+            setEditingPedido(null); 
+          } catch (err) {
+            alert('⚠️ ERROR: No se pudo guardar el pedido. Revisa tu conexión a internet e intenta de nuevo.');
+          }
+        }}
         catalogProducts={catalogProducts}
       />
 
