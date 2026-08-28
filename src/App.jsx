@@ -37,7 +37,15 @@ function App() {
   } = usePedidos(isAuthenticated);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  // Usar fecha LOCAL (zona horaria de Colombia) en vez de UTC
+  const getLocalDate = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const [selectedDate, setSelectedDate] = useState(getLocalDate());
   const [sortConfig, setSortConfig] = useState({ key: 'Hora entrega', direction: 'asc' });
   const [editingPedido, setEditingPedido] = useState(null);
   
