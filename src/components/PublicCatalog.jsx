@@ -13,7 +13,10 @@ const formatPrice = (precio) => {
 };
 
 const buildWhatsAppUrl = (config, productoNombre) => {
-  const phone = config?.whatsapp || '3106305616';
+  let phone = (config?.whatsapp || '3106305616').replace(/\D/g, '');
+  if (phone.startsWith('57') && phone.length > 10) {
+    phone = phone.substring(2);
+  }
   const mensaje = config?.mensaje || 'Hola, me gustaría pedir: ';
   return `https://wa.me/57${phone}?text=${encodeURIComponent(mensaje + productoNombre)}`;
 };

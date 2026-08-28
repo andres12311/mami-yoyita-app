@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { X, BarChart3, Plus, Trash2 } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
-const ExpenseModal = ({ isOpen, onClose, selectedDate, gastosDetalle, onSaveGastos }) => {
+const ExpenseModal = ({ isOpen, onClose, selectedDate, gastosDetalle = {}, onSaveGastos }) => {
   const [newExpense, setNewExpense] = useState({ desc: '', monto: '' });
   if (!isOpen) return null;
 
-  const currentGastos = gastosDetalle[selectedDate] || [];
+  const currentGastos = (gastosDetalle && gastosDetalle[selectedDate]) || [];
 
   const handleAdd = () => {
     const desc = (newExpense.desc || '').trim();
@@ -21,7 +21,7 @@ const ExpenseModal = ({ isOpen, onClose, selectedDate, gastosDetalle, onSaveGast
     }
     const updated = {
       ...gastosDetalle,
-      [selectedDate]: [...currentGastos, { id: Date.now(), desc, monto: monto.toString() }]
+      [selectedDate]: [...currentGastos, { id: Date.now(), desc, monto: Number(monto) }]
     };
     onSaveGastos(updated);
     setNewExpense({ desc: '', monto: '' });

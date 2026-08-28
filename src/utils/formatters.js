@@ -3,14 +3,15 @@ export const formatCurrency = (val) =>
     style: 'currency', 
     currency: 'COP', 
     maximumFractionDigits: 0 
-  }).format(val);
+  }).format(Number(val) || 0);
 
 export const formatTime12h = (timeStr) => {
   if (!timeStr) return '--:--';
+  const str = String(timeStr).trim();
   
-  // Si ya tiene AM/PM, lo devolvemos tal cual (limpiando espacios extras)
-  if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) {
-    return timeStr.toLowerCase();
+  // Si ya tiene AM/PM, lo devolvemos tal cual
+  if (str.toLowerCase().includes('am') || str.toLowerCase().includes('pm')) {
+    return str.toLowerCase();
   }
 
   // Intentamos parsear formato HH:mm

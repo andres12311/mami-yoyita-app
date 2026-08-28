@@ -10,7 +10,11 @@ export const usePedidos = (isAuthenticated) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setPedidos([]);
+      setLoading(false);
+      return;
+    }
 
     const unsubscribe = onSnapshot(collection(db, "pedidos"), (snapshot) => {
       const data = snapshot.docs.map(doc => ({ ...doc.data(), internalId: doc.id }));
@@ -26,17 +30,27 @@ export const usePedidos = (isAuthenticated) => {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setProduccionManual({});
+      return;
+    }
     const unsubscribe = onSnapshot(doc(db, "config", "produccion"), (snapshot) => {
       if (snapshot.exists()) setProduccionManual(snapshot.data());
+    }, (error) => {
+      logger.error("Error escuchando producción manual:", error);
     });
     return () => unsubscribe();
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setGastosDetalle({});
+      return;
+    }
     const unsubscribe = onSnapshot(doc(db, "config", "gastos"), (snapshot) => {
       if (snapshot.exists()) setGastosDetalle(snapshot.data());
+    }, (error) => {
+      logger.error("Error escuchando gastos detalle:", error);
     });
     return () => unsubscribe();
   }, [isAuthenticated]);

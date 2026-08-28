@@ -3,37 +3,45 @@ import { X, Download, Share2, MapPin, Clock, Phone } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { formatTime12h, sortableTime } from '../../utils/formatters';
 
-const DeliveryExportModal = ({ isOpen, onClose, displayPedidos, selectedDate }) => {
+const DeliveryExportModal = ({ isOpen, onClose, displayPedidos = [], selectedDate }) => {
   const exportRef = useRef(null);
+  const [isDownloading, setIsDownloading] = React.useState(false);
 
   if (!isOpen) return null;
 
   const handleDownload = async () => {
-    if (!exportRef.current) return;
-    
-    const canvas = await html2canvas(exportRef.current, {
-      scale: 4, // Calidad ultra HD para evitar borrosidad
-      backgroundColor: '#FFFFFF',
-      logging: false,
-      useCORS: true,
-      onclone: (clonedDoc, clonedElement) => {
-        // Ensanchar la imagen al momento de capturarla para que no se vea apretada
-        clonedElement.style.width = '800px';
-        clonedElement.style.padding = '50px';
-        clonedElement.style.borderRadius = '0';
-        clonedElement.style.border = 'none';
-      }
-    });
-    
-    const image = canvas.toDataURL("image/png");
-    const link = document.createElement('a');
-    link.href = image;
-    link.download = `Domicilios_${selectedDate}.png`;
-    link.click();
+    if (!exportRef.current || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(exportRef.current, {
+        scale: 4, // Calidad ultra HD para evitar borrosidad
+        backgroundColor: '#FFFFFF',
+        logging: false,
+        useCORS: true,
+        onclone: (clonedDoc, clonedElement) => {
+          // Ensanchar la imagen al momento de capturarla para que no se vea apretada
+          clonedElement.style.width = '800px';
+          clonedElement.style.padding = '50px';
+          clonedElement.style.borderRadius = '0';
+          clonedElement.style.border = 'none';
+        }
+      });
+      
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `Domicilios_${selectedDate}.png`;
+      link.click();
+    } catch (err) {
+      console.error(err);
+      alert('⚠️ Error al generar la imagen de domicilios.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   // Ordenar cronológicamente usando la utilidad sortableTime
-  const sortedPedidos = [...displayPedidos].sort((a, b) => {
+  const sortedPedidos = [...(displayPedidos || [])].sort((a, b) => {
     const timeA = sortableTime(a['Hora entrega']);
     const timeB = sortableTime(b['Hora entrega']);
     return timeA.localeCompare(timeB);

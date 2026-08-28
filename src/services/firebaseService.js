@@ -36,6 +36,7 @@ const sanitizePedido = (pedido) => {
     precioDomicilio: sanitizeNumber(pedido.precioDomicilio, 0, 5000000),
     status: ['pendiente', 'proceso', 'listo'].includes(pedido.status) ? pedido.status : 'pendiente',
     movil: sanitizeString(pedido.movil || '', 10),
+    ingredientesProduccion: sanitizeString(pedido.ingredientesProduccion || '', 500),
   };
 };
 
@@ -44,7 +45,7 @@ const sanitizePedido = (pedido) => {
 // ═══════════════════════════════════════════
 
 const writeTimestamps = [];
-const MAX_WRITES_PER_MINUTE = 30;
+const MAX_WRITES_PER_MINUTE = 180;
 
 const checkRateLimit = () => {
   const now = Date.now();

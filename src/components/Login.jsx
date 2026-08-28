@@ -17,12 +17,15 @@ const Login = ({ onLogin, loginError }) => {
       ? username.trim() 
       : `${username.trim().toLowerCase()}@mamiyoyita.com`;
 
-    await onLogin(loginEmail, password);
-    setIsSubmitting(false);
+    try {
+      await onLogin(loginEmail, password);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="login-screen" style={{height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #FFF5F7 0%, #F3E8FF 100%)'}}>
+    <div className="login-screen" style={{height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #FFF5F7 0%, #F3E8FF 100%)'}}> 
       <div className="modal-lux" style={{textAlign: 'center', maxWidth: '400px', width: '90%'}}>
          <div style={{marginBottom: '30px'}}>
            <Heart size={60} fill="#FFB7C5" color="#FF8DA1" style={{margin: '0 auto'}} />
@@ -59,7 +62,7 @@ const Login = ({ onLogin, loginError }) => {
 
            {loginError && (
              <div style={{color: '#EF4444', fontSize: '13px', fontWeight: '600', background: '#FEE2E2', padding: '10px', borderRadius: '10px', lineHeight: '1.4'}}>
-               ❌ Error: {loginError.includes('auth/') ? 'Usuario o clave incorrectos' : loginError}
+               ❌ Error: {typeof loginError === 'string' && loginError.includes('auth/') ? 'Usuario o clave incorrectos' : String(loginError)}
              </div>
            )}
 

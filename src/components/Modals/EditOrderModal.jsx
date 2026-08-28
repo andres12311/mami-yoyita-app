@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Save } from 'lucide-react';
 
 const EditOrderModal = ({ editingPedido, setEditingPedido, onSave, catalogProducts = [] }) => {
+  const [isSaving, setIsSaving] = React.useState(false);
   if (!editingPedido) return null;
 
   const handleChange = (field, value) => {
@@ -9,11 +10,15 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave, catalogProduc
   };
 
   const handleNumericChange = (field, value) => {
+    if (value === '') {
+      handleChange(field, '');
+      return;
+    }
     const num = parseFloat(value);
     handleChange(field, isNaN(num) || num < 0 ? 0 : num);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validación mínima antes de guardar
     if (!editingPedido.Pedido || !editingPedido.Pedido.trim()) {
       alert('El campo "Pedido / Producto" es obligatorio.');
@@ -23,7 +28,12 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave, catalogProduc
       alert('El campo "Nombre del Cliente" es obligatorio.');
       return;
     }
-    onSave();
+    setIsSaving(true);
+    try {
+      await onSave();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCatalogSelect = (e) => {
@@ -173,31 +183,31 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave, catalogProduc
                 max="10000000"
                 step="1000"
                 className="premium-input" 
-                value={editingPedido.precioDesayuno || 0} 
-                onChange={e => handleNumericChange('precioDesayuno', e.target.value)} 
-              />
-            </div>
-            <div className="info-group">
-              <label className="info-label">Precio Domicilio ($)</label>
-              <input 
-                type="number"
-                min="0"
-                max="1000000"
-                step="500"
-                className="premium-input" 
-                value={editingPedido.precioDomicilio || 0} 
-                onChange={e => handleNumericChange('precioDomicilio', e.target.value)} 
-              />
+                  value={editingPedido.precioDesayuno ?? ''} 
+                  onChange={e => handleNumericChange('precioDesayuno', e.target.value)} 
+                />
+              </div>
+              <div className="info-group">
+                <label className="info-label">Precio Domicilio ($)</label>
+                <input 
+                  type="number"
+                  min="0"
+                  max="1000000"
+                  step="500"
+                  className="premium-input" 
+                  value={editingPedido.precioDomicilio ?? ''} 
+                  onChange={e => handleNumericChange('precioDomicilio', e.target.value)} 
+                />
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="modal-footer" style={{marginTop: '30px', display: 'flex', gap: '15px'}}>
-          <button className="btn-main" style={{flex: 1, justifyContent: 'center'}} onClick={handleSave}>
-            <Save size={20} /> Guardar Cambios
-          </button>
-          <button className="btn-icon" style={{width: '60px', height: '60px'}} onClick={() => setEditingPedido(null)}>
-            <X size={24} />
+  
+          <div className="modal-footer" style={{marginTop: '30px', display: 'flex', gap: '15px'}}>
+            <button className="btn-main" style={{flex: 1, justifyContent: 'center'}} onClick={handleSave} disabled={isSaving}>
+              <Save size={20} /> {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+            </button>
+            <button className="btn-icon" style={{width: '60px', height: '60px'}} onClick={() => setEditingPedido(null)} disabled={isSaving}>
+              <X size={24} />
           </button>
         </div>
       </div>

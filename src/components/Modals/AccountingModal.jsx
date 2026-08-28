@@ -16,7 +16,15 @@ const formatMonthName = (monthStr) => {
   }
 };
 
-const AccountingModal = ({ isOpen, onClose, selectedDate, deliveryStats, productStats, globalStats, monthlyStats }) => {
+const AccountingModal = ({ 
+  isOpen, 
+  onClose, 
+  selectedDate = '', 
+  deliveryStats = [], 
+  productStats = [], 
+  globalStats = { totalSales: 0, totalExpenses: 0, netProfit: 0 }, 
+  monthlyStats = [] 
+}) => {
   if (!isOpen) return null;
 
   return (

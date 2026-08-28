@@ -62,7 +62,7 @@ const OrderCard = ({ pedido, onWhatsApp, onEdit, onDelete, onUpdateStatus, onSav
               className="btn-icon no-print" 
               style={{background: '#EEF2FF', color: '#4F46E5'}} 
               title="Ver en Google Maps"
-              onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pedido.Direccion + " Ibagué")}`, '_blank')}
+              onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((pedido.Direccion || '') + " Ibagué")}`, '_blank')}
             >
               <Share2 size={16} />
             </button>

@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { recipes, productToRecipe } from '../data/recipes';
 
-export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual, gastosDetalle) => {
+export const useStats = (pedidos = [], displayPedidos = [], selectedDate = '', produccionManual = {}, gastosDetalle = {}) => {
   const deliveryStats = useMemo(() => {
     const stats = {};
-    displayPedidos.forEach(p => {
+    (displayPedidos || []).forEach(p => {
       if (p.movil) {
         if (!stats[p.movil]) stats[p.movil] = { count: 0, totalPay: 0 };
         stats[p.movil].count += 1;
@@ -16,7 +16,7 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
 
   const productStats = useMemo(() => {
     const stats = {};
-    displayPedidos.forEach(p => {
+    (displayPedidos || []).forEach(p => {
       const name = p.Pedido || 'Sin Nombre';
       stats[name] = (stats[name] || 0) + 1;
     });
@@ -29,7 +29,7 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     // Ya NO agregamos p.Pedido a la producción, por petición del usuario.
     // Solo se "stackeará" lo que se ponga en el nuevo campo de ingredientes.
 
-    const manual = produccionManual[selectedDate] || [];
+    const manual = (produccionManual && produccionManual[selectedDate]) || [];
     const finalTable = { ...summary };
     manual.forEach(m => {
       if (m.item) {
@@ -38,7 +38,7 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     });
 
     // Agregar los ingredientes extra de cada pedido a la tabla final de producción
-    displayPedidos.forEach(p => {
+    (displayPedidos || []).forEach(p => {
       if (p.ingredientesProduccion) {
         const extras = p.ingredientesProduccion.split(',').map(s => s.trim()).filter(s => s.length > 0);
         extras.forEach(extra => {
@@ -56,7 +56,19 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     const materials = {};
     
     productionSummary.forEach(([product, quantity]) => {
-      const recipeKey = productToRecipe[product];
+      // Buscar coincidencia parcial inteligente en las recetas
+      let recipeKey = null;
+      const normalizedProduct = product.toLowerCase();
+      
+      for (const [prodName, key] of Object.entries(productToRecipe || {})) {
+        const normalizedProdName = prodName.toLowerCase();
+        // Si "4 pandeyucas" contiene "pandeyucas"
+        if (normalizedProduct.includes(normalizedProdName) || normalizedProdName.includes(normalizedProduct)) {
+          recipeKey = key;
+          break;
+        }
+      }
+      
       const recipe = recipes[recipeKey];
       
       if (recipe) {
@@ -71,14 +83,14 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     return Object.entries(materials).sort((a, b) => b[1] - a[1]);
   }, [productionSummary]);
 
-  const totalVentasDia = displayPedidos.reduce((sum, p) => sum + (parseFloat(p.precioDesayuno) || 0), 0);
-  const totalGastosDia = (gastosDetalle[selectedDate] || []).reduce((sum, g) => sum + (parseFloat(g.monto) || 0), 0);
+  const totalVentasDia = (displayPedidos || []).reduce((sum, p) => sum + (parseFloat(p.precioDesayuno) || 0), 0);
+  const totalGastosDia = ((gastosDetalle && gastosDetalle[selectedDate]) || []).reduce((sum, g) => sum + (parseFloat(g.monto) || 0), 0);
   const utilidadDia = totalVentasDia - totalGastosDia;
 
   // Global Stats (All time)
   const globalStats = useMemo(() => {
-    const totalSales = pedidos.reduce((sum, p) => sum + (parseFloat(p.precioDesayuno) || 0), 0);
-    const totalExpenses = Object.entries(gastosDetalle).reduce((sum, [key, list]) => {
+    const totalSales = (pedidos || []).reduce((sum, p) => sum + (parseFloat(p.precioDesayuno) || 0), 0);
+    const totalExpenses = Object.entries(gastosDetalle || {}).reduce((sum, [key, list]) => {
       if (!Array.isArray(list)) return sum;
       return sum + list.reduce((s, g) => s + (parseFloat(g.monto) || 0), 0);
     }, 0);
@@ -94,7 +106,7 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     const months = {};
     
     // Process Sales
-    pedidos.forEach(p => {
+    (pedidos || []).forEach(p => {
       const date = p.fechaEntrega || '';
       if (date && date.includes('-')) {
         const monthKey = date.substring(0, 7); // YYYY-MM
@@ -104,7 +116,7 @@ export const useStats = (pedidos, displayPedidos, selectedDate, produccionManual
     });
 
     // Process Expenses
-    Object.entries(gastosDetalle).forEach(([date, list]) => {
+    Object.entries(gastosDetalle || {}).forEach(([date, list]) => {
       if (Array.isArray(list) && date.includes('-')) {
         const monthKey = date.substring(0, 7);
         if (!months[monthKey]) months[monthKey] = { sales: 0, expenses: 0 };

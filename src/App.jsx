@@ -37,13 +37,9 @@ function App() {
   } = usePedidos(isAuthenticated);
 
   const [searchTerm, setSearchTerm] = useState('');
-  // Usar fecha LOCAL (zona horaria de Colombia) en vez de UTC
+  // Usar fecha LOCAL de Colombia (UTC-5) explícitamente
   const getLocalDate = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
   };
   const [selectedDate, setSelectedDate] = useState(getLocalDate());
   const [sortConfig, setSortConfig] = useState({ key: 'Hora entrega', direction: 'asc' });
@@ -88,8 +84,8 @@ function App() {
           valA = sortableTime(a['Hora entrega']);
           valB = sortableTime(b['Hora entrega']);
         } else {
-          valA = parseInt(a['Unnamed: 0'] || 0);
-          valB = parseInt(b['Unnamed: 0'] || 0);
+          valA = Number(a['Unnamed: 0']) || 0;
+          valB = Number(b['Unnamed: 0']) || 0;
         }
         if (valA === valB) return a.internalId > b.internalId ? 1 : -1;
         
@@ -106,30 +102,42 @@ function App() {
 
   const stats = useStats(pedidos, displayPedidos, selectedDate, produccionManual, gastosDetalle);
 
-  const handleUpdateStatus = (id, newStatus) => {
+  const handleUpdateStatus = async (id, newStatus) => {
     const pedido = pedidos.find(p => p.internalId === id);
-    if (pedido) {
-      savePedidoCloud({ ...pedido, status: newStatus });
+    if (!pedido) return;
+    try {
+      await savePedidoCloud({ ...pedido, status: newStatus });
       if (newStatus === 'listo') {
-        const confirmSend = window.confirm(`¿Quieres enviar la notificación de despacho a ${pedido['nombre cliente']} por WhatsApp?`);
+        const confirmSend = window.confirm(`¿Quieres enviar la notificación de despacho a ${pedido['nombre cliente'] || 'el cliente'} por WhatsApp?`);
         if (confirmSend) {
-          const phone = pedido.Telefono.replace(/\D/g, '');
-          const message = `¡Hola ${pedido['nombre cliente']}! 🌸 Te saludamos de *Delicias de la Mami Yoyita*. Tu pedido ya salió!`;
-          window.open(`https://wa.me/57${phone}?text=${encodeURIComponent(message)}`, '_blank');
+          const phone = (pedido.Telefono || '').replace(/\D/g, '');
+          if (phone) {
+            const message = `¡Hola ${pedido['nombre cliente']}! 🌸 Te saludamos de *Delicias de la Mami Yoyita*. Tu pedido ya salió!`;
+            window.open(`https://wa.me/57${phone}?text=${encodeURIComponent(message)}`, '_blank');
+          }
         }
       }
+    } catch (err) {
+      alert('⚠️ Error al actualizar el estado del pedido. Revisa tu conexión.');
     }
   };
 
   const handleWhatsApp = (pedido) => {
-    const phone = pedido.Telefono.replace(/\D/g, '');
-    const message = `¡Hola ${pedido['nombre cliente']}! 🌸 Confirmamos tu pedido de ${pedido.Pedido}.`;
+    const phone = (pedido.Telefono || '').replace(/\D/g, '');
+    if (!phone) {
+      alert('Este pedido no tiene número de teléfono.');
+      return;
+    }
+    const message = `¡Hola ${pedido['nombre cliente'] || ''}! 🌸 Confirmamos tu pedido de ${pedido.Pedido || ''}.`;
     window.open(`https://wa.me/57${phone}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleNewPedido = () => {
     const dayOrders = pedidos.filter(p => p.fechaEntrega === selectedDate);
-    const maxOrder = dayOrders.length > 0 ? Math.max(...dayOrders.map(p => parseInt(p['Unnamed: 0']) || 0)) : 0;
+    const maxOrder = dayOrders.reduce((max, p) => {
+      const num = Number(p['Unnamed: 0']);
+      return !isNaN(num) && num > max ? num : max;
+    }, 0);
     setEditingPedido({ 
       internalId: `new-${Date.now()}`, 
       'Unnamed: 0': maxOrder + 1, 
@@ -250,7 +258,14 @@ function App() {
         onClose={() => setShowExpenses(false)} 
         selectedDate={selectedDate} 
         gastosDetalle={gastosDetalle} 
-        onSaveGastos={(data) => { setGastosDetalle(data); saveConfigCloud('gastos', data); }} 
+        onSaveGastos={async (data) => { 
+          try {
+            setGastosDetalle(data); 
+            await saveConfigCloud('gastos', data); 
+          } catch (err) {
+            alert('⚠️ Error al guardar gastos: ' + (err.message || 'Revisa tu conexión.'));
+          }
+        }}
       />
 
       <DeliveryExportModal 

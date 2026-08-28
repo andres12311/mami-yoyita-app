@@ -13,21 +13,30 @@ export const useCatalog = () => {
 
   useEffect(() => {
     const q = query(collection(db, "catalogo"), orderBy("orden", "asc"));
+    let fallbackUnsubscribe = null;
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
       setProductos(data);
       setLoading(false);
     }, (error) => {
+      console.warn("Falla en orden del catálogo, usando fallback sin orden:", error);
       // Si falla el orderBy (sin índice), intentar sin orden
-      const fallback = onSnapshot(collection(db, "catalogo"), (snapshot) => {
+      fallbackUnsubscribe = onSnapshot(collection(db, "catalogo"), (snapshot) => {
         const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
         setProductos(data);
         setLoading(false);
+      }, (fallbackError) => {
+        console.error("Error crítico cargando catálogo:", fallbackError);
+        setLoading(false);
       });
-      return () => fallback();
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (fallbackUnsubscribe) {
+        fallbackUnsubscribe();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -35,6 +44,8 @@ export const useCatalog = () => {
       if (snapshot.exists()) {
         setCatalogConfig(prev => ({ ...prev, ...snapshot.data() }));
       }
+    }, (error) => {
+      console.error("Error cargando config de catálogo:", error);
     });
     return () => unsubscribe();
   }, []);

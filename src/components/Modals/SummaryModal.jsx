@@ -7,6 +7,10 @@ const SummaryModal = ({ isOpen, onClose, productionSummary, rawMaterialSummary }
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('⚠️ Por favor permite las ventanas emergentes (popups) en tu navegador para imprimir.');
+      return;
+    }
     
     let contentHtml = '';
     if (view === 'products') {
