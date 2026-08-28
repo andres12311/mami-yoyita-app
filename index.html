@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/mami-yoyita-app/icon-192.svg" />
+    <link rel="apple-touch-icon" href="/mami-yoyita-app/icon-192.svg" />
+    <link rel="manifest" href="/mami-yoyita-app/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+    <meta name="theme-color" content="#FFB7C5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Mami Yoyita" />
+    <meta name="description" content="Gestión de pedidos y domicilios - Delicias de la Mami Yoyita" />
+    <title>Mami Yoyita v2.0</title>
+    <link rel="stylesheet" href="/mami-yoyita-app/index.css" />
+    <style>
+      h1 { color: #FF6B9E !important; }
+      body { background-color: #FDF2F7 !important; margin: 0; padding: 0; }
+    </style>
+    <script type="module" crossorigin src="/mami-yoyita-app/assets/index-COcTSc2U.js"></script>
+    <link rel="stylesheet" crossorigin href="/mami-yoyita-app/assets/index-DoLpbIBF.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/mami-yoyita-app/sw.js')
+            .then(() => console.log('SW registrado'))
+            .catch((err) => console.log('SW error:', err));
+        });
+      }
+    </script>
+  </body>
+</html>
