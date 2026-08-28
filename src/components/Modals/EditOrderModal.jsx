@@ -183,7 +183,7 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave, catalogProduc
                 max="10000000"
                 step="1000"
                 className="premium-input" 
-                  value={editingPedido.precioDesayuno ?? ''} 
+                  value={editingPedido.precioDesayuno || ''} 
                   onChange={e => handleNumericChange('precioDesayuno', e.target.value)} 
                 />
               </div>
@@ -195,7 +195,7 @@ const EditOrderModal = ({ editingPedido, setEditingPedido, onSave, catalogProduc
                   max="1000000"
                   step="500"
                   className="premium-input" 
-                  value={editingPedido.precioDomicilio ?? ''} 
+                  value={editingPedido.precioDomicilio || ''} 
                   onChange={e => handleNumericChange('precioDomicilio', e.target.value)} 
                 />
               </div>
