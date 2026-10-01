@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 
 const STORAGE_KEY_MODE = 'mami_yoyita_view_mode';
-const STORAGE_KEY_PIN = 'mami_yoyita_admin_pin';
-const DEFAULT_PIN = '1234';
+const STORAGE_KEY_PIN = 'mami_yoyita_admin_pin_v2';
+const DEFAULT_PIN = '13579';
 
 export const useViewMode = () => {
   const [viewMode, setViewMode] = useState(() => {

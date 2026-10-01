@@ -119,12 +119,6 @@ const PinModal = ({ isOpen, onClose, onUnlock, currentPin }) => {
           >
             <ShieldCheck size={20} /> Desbloquear Modo Admin
           </button>
-
-          {currentPin === '1234' && (
-            <span style={{ fontSize: '12px', color: '#94A3B8' }}>
-              💡 PIN predeterminado: <strong>1234</strong>
-            </span>
-          )}
         </form>
       </div>
     </div>
