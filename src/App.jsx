@@ -7,6 +7,7 @@ import { useAuth } from './hooks/useAuth';
 import { usePedidos } from './hooks/usePedidos';
 import { useStats } from './hooks/useStats';
 import { useCatalog } from './hooks/useCatalog';
+import { useViewMode } from './hooks/useViewMode';
 
 // Components
 import Login from './components/Login';
@@ -21,6 +22,7 @@ import AccountingModal from './components/Modals/AccountingModal';
 import SummaryModal from './components/Modals/SummaryModal';
 import ExpenseModal from './components/Modals/ExpenseModal';
 import DeliveryExportModal from './components/Modals/DeliveryExportModal';
+import PinModal from './components/Modals/PinModal';
 import CatalogAdminPage from './components/CatalogAdminPage';
 
 // Services
@@ -45,11 +47,23 @@ function App() {
   const [sortConfig, setSortConfig] = useState({ key: 'Hora entrega', direction: 'asc' });
   const [editingPedido, setEditingPedido] = useState(null);
   
-  // Modal states
   const [showSummary, setShowSummary] = useState(false);
   const [showAccounting, setShowAccounting] = useState(false);
   const [showExpenses, setShowExpenses] = useState(false);
   const [showDeliveryExport, setShowDeliveryExport] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+
+  // View Mode: Operativo vs Admin
+  const { viewMode, isAdmin, isOperativo, unlockAdmin, lockOperativo, currentPin } = useViewMode();
+
+  const handleToggleViewMode = () => {
+    if (isAdmin) {
+      lockOperativo();
+    } else {
+      setShowPinModal(true);
+    }
+  };
+
   // Hash routing for public catalog
   const [currentRoute, setCurrentRoute] = useState(window.location.hash);
   
@@ -101,6 +115,16 @@ function App() {
   }, [pedidos, searchTerm, sortConfig, selectedDate]);
 
   const stats = useStats(pedidos, displayPedidos, selectedDate, produccionManual, gastosDetalle);
+
+  const statusCounts = useMemo(() => {
+    const counts = { pendientes: 0, proceso: 0, listos: 0 };
+    displayPedidos.forEach(p => {
+      if (p.status === 'listo') counts.listos++;
+      else if (p.status === 'proceso') counts.proceso++;
+      else counts.pendientes++;
+    });
+    return counts;
+  }, [displayPedidos]);
 
   const handleUpdateStatus = async (id, newStatus) => {
     const pedido = pedidos.find(p => p.internalId === id);
@@ -199,6 +223,9 @@ function App() {
         setSortConfig={setSortConfig}
         onNewPedido={handleNewPedido}
         setShowDeliveryExport={setShowDeliveryExport}
+        viewMode={viewMode}
+        isAdmin={isAdmin}
+        onToggleViewMode={handleToggleViewMode}
       />
 
       <Dashboard 
@@ -206,6 +233,8 @@ function App() {
         totalVentas={stats.totalVentasDia}
         totalGastos={stats.totalGastosDia}
         utilidad={stats.utilidadDia}
+        isOperativo={isOperativo}
+        statusCounts={statusCounts}
       />
 
       <div className="orders-grid">
@@ -237,7 +266,7 @@ function App() {
       />
 
       <AccountingModal 
-        isOpen={showAccounting} 
+        isOpen={showAccounting && isAdmin} 
         onClose={() => setShowAccounting(false)} 
         selectedDate={selectedDate} 
         deliveryStats={stats.deliveryStats} 
@@ -254,7 +283,7 @@ function App() {
       />
 
       <ExpenseModal 
-        isOpen={showExpenses} 
+        isOpen={showExpenses && isAdmin} 
         onClose={() => setShowExpenses(false)} 
         selectedDate={selectedDate} 
         gastosDetalle={gastosDetalle} 
@@ -273,6 +302,13 @@ function App() {
         onClose={() => setShowDeliveryExport(false)} 
         displayPedidos={displayPedidos}
         selectedDate={selectedDate}
+      />
+
+      <PinModal 
+        isOpen={showPinModal} 
+        onClose={() => setShowPinModal(false)} 
+        onUnlock={unlockAdmin}
+        currentPin={currentPin}
       />
     </div>
   );

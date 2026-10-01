@@ -1,11 +1,10 @@
 import React from 'react';
-import { Heart, Sparkles, BarChart3, TrendingUp, ClipboardList, Plus, Printer, Lock, Search, Share2, ShoppingBag } from 'lucide-react';
+import { Heart, Sparkles, BarChart3, TrendingUp, ClipboardList, Plus, Printer, Lock, Search, Share2, ShoppingBag, Shield, ShieldCheck } from 'lucide-react';
 
 const Header = ({ 
   setShowExpenses, 
   setShowAccounting, 
   setShowSummary, 
-  setEditingPedido, 
   logout, 
   searchTerm, 
   setSearchTerm, 
@@ -14,7 +13,10 @@ const Header = ({
   sortConfig, 
   setSortConfig,
   onNewPedido,
-  setShowDeliveryExport
+  setShowDeliveryExport,
+  viewMode,
+  isAdmin,
+  onToggleViewMode
 }) => {
   return (
     <div className="main-header no-print">
@@ -31,8 +33,34 @@ const Header = ({
         </div>
         
         <div className="controls-row">
-           <button className="btn-main" style={{background: '#6366F1'}} onClick={() => setShowExpenses(true)}><BarChart3 size={20} /> Gastos</button>
-           <button className="btn-main" style={{background: '#8B5CF6'}} onClick={() => setShowAccounting(true)}><TrendingUp size={20} /> Contabilidad</button>
+           {/* Selector de Modo Operativo / Admin */}
+           {isAdmin ? (
+             <button 
+               className="btn-main" 
+               style={{background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'}} 
+               onClick={onToggleViewMode}
+               title="Hacer clic para bloquear y pasar a Modo Operativo (ocultar ganancias)"
+             >
+               <ShieldCheck size={20} /> Modo Admin
+             </button>
+           ) : (
+             <button 
+               className="btn-main" 
+               style={{background: 'linear-gradient(135deg, #E11D48 0%, #BE123C 100%)', boxShadow: '0 4px 15px rgba(225, 29, 72, 0.3)'}} 
+               onClick={onToggleViewMode}
+               title="Hacer clic para desbloquear Modo Administrador con PIN"
+             >
+               <Shield size={20} /> Modo Operativo
+             </button>
+           )}
+
+           {isAdmin && (
+             <>
+               <button className="btn-main" style={{background: '#6366F1'}} onClick={() => setShowExpenses(true)}><BarChart3 size={20} /> Gastos</button>
+               <button className="btn-main" style={{background: '#8B5CF6'}} onClick={() => setShowAccounting(true)}><TrendingUp size={20} /> Contabilidad</button>
+             </>
+           )}
+
            <button className="btn-main" style={{background: '#717171'}} onClick={() => setShowSummary(true)}><ClipboardList size={20} /> Producción</button>
            <button className="btn-main" style={{background: '#0EA5E9'}} onClick={() => setShowDeliveryExport(true)}><Share2 size={20} /> Domicilios</button>
            <button className="btn-main" style={{background: '#EC4899'}} onClick={() => window.location.hash = '#/admin-catalogo'}><ShoppingBag size={20} /> Catálogo</button>
